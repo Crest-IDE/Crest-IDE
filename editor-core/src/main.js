@@ -63,16 +63,17 @@ import './styles.css';
       : langOrPath;
     const grammar = registry.getGrammarName(langId) || langId;
 
-    if (!highlighter) {
-      highlighter = new TreeSitterHighlighter(grammar);
-    }
-
     try {
-      const isReady = await highlighter.ready();
-      if (isReady) {
+      await TreeSitterHighlighter.init();
+      if (!highlighter) {
+        highlighter = new TreeSitterHighlighter(grammar);
+      }
+      const loaded = await TreeSitterHighlighter.loadLanguage(grammar);
+      if (loaded) {
         highlighter.setLanguage(grammar);
         if (editorView) {
           editorView.setTokensProvider(highlighter);
+          editorView.render();
         }
       }
     } catch (err) {

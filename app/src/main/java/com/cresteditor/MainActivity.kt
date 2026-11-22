@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.util.Log
 import android.webkit.ConsoleMessage
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
@@ -673,6 +675,38 @@ fun CrestEditorScreen(
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
                     Log.d("CrestWebView", "WebView page finished loading: $url")
+                }
+
+                override fun shouldInterceptRequest(
+                    view: WebView?,
+                    request: WebResourceRequest?
+                ): WebResourceResponse? {
+                    val url = request?.url?.toString() ?: return null
+                    if (url.contains("android_asset/")) {
+                        val assetPath = url.substringAfter("android_asset/")
+                        try {
+                            val inputStream = context.assets.open(assetPath)
+                            val mimeType = when {
+                                assetPath.endsWith(".wasm") -> "application/wasm"
+                                assetPath.endsWith(".scm") -> "text/plain"
+                                assetPath.endsWith(".js") -> "application/javascript"
+                                assetPath.endsWith(".css") -> "text/css"
+                                assetPath.endsWith(".html") -> "text/html"
+                                assetPath.endsWith(".json") -> "application/json"
+                                else -> "application/octet-stream"
+                            }
+                            val response = WebResourceResponse(mimeType, "UTF-8", inputStream)
+                            response.responseHeaders = mapOf(
+                                "Access-Control-Allow-Origin" to "*",
+                                "Access-Control-Allow-Methods" to "GET, OPTIONS",
+                                "Access-Control-Allow-Headers" to "*"
+                            )
+                            return response
+                        } catch (e: Exception) {
+                            Log.e("CrestWebView", "Failed to intercept asset: $assetPath", e)
+                        }
+                    }
+                    return super.shouldInterceptRequest(view, request)
                 }
             }
 
