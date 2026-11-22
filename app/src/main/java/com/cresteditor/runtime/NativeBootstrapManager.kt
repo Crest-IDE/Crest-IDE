@@ -359,6 +359,9 @@ class NativeBootstrapManager(private val context: Context) {
                 """
                 #!/data/data/com.crestd/files/usr/bin/bash
                 set -e
+                export PREFIX=/data/data/com.crestd/files/usr
+                export PATH=${'$'}PREFIX/bin:${'$'}PATH
+                export TMPDIR=${'$'}PREFIX/tmp
 
                 patch_single_deb() {
                     local deb="${'$'}1"
@@ -376,6 +379,7 @@ class NativeBootstrapManager(private val context: Context) {
                             if [ -n "${'$'}data_archive" ]; then
                                 mkdir -p data_out
                                 tar -xf "${'$'}data_archive" --transform='s/com\.termux/com.crestd/g' -C data_out
+                                grep -rlI "com\.termux" data_out 2>/dev/null | xargs -r sed -i 's/com\.termux/com.crestd/g' 2>/dev/null || true
                                 tar -I "gzip -1" -cf data.tar.gz -C data_out ./data
                                 rm -rf data_out "${'$'}data_archive"
                             fi
@@ -397,11 +401,19 @@ class NativeBootstrapManager(private val context: Context) {
                     fi
                 }
 
-                while read -r file; do
-                    case "${'$'}file" in
-                        *.deb) patch_single_deb "${'$'}file" ;;
-                    esac
-                done
+                if [ ${'$'}# -gt 0 ]; then
+                    for item in "${'$'}@"; do
+                        case "${'$'}item" in
+                            *.deb) patch_single_deb "${'$'}item" ;;
+                        esac
+                    done
+                else
+                    while read -r file; do
+                        case "${'$'}file" in
+                            *.deb) patch_single_deb "${'$'}file" ;;
+                        esac
+                    done
+                fi
                 """.trimIndent()
             )
             patchScript.setExecutable(true, false)
