@@ -115,6 +115,9 @@ import './styles.css';
       }
       if (editorView) {
         editorView.setBuffer(buffer);
+        if (currentFilePath) {
+          editorView.setLanguage(currentFilePath);
+        }
         editorView.focus();
       }
       return true;
@@ -141,6 +144,10 @@ import './styles.css';
 
       if (editorView) {
         editorView.setBuffer(buffer);
+        const resolvedLang = languageId || filePath;
+        if (resolvedLang) {
+          editorView.setLanguage(resolvedLang);
+        }
         editorView.focus();
       }
       return true;
@@ -164,6 +171,9 @@ import './styles.css';
       }
       if (currentFilePath === oldPath) {
         currentFilePath = newPath;
+        if (editorView) {
+          editorView.setLanguage(languageId || newPath);
+        }
       }
       return true;
     },
@@ -212,16 +222,22 @@ import './styles.css';
         editorView.setSelection(new Selection(1, 1, totalLines, lastLineLen + 1));
         return 'OK';
       }
+      if (actionId === 'editor.action.commentLine') {
+        return editorView.toggleLineComment() ? 'OK' : 'FAILED';
+      }
       return 'OK';
+    },
+    getLanguageId: function() {
+      return editorView ? editorView.getLanguageId() : 'plaintext';
     },
     applySettings: function(settings) {
       return true;
     },
     undo: function() {
-      return false;
+      return editorView ? editorView.undo() : false;
     },
     redo: function() {
-      return false;
+      return editorView ? editorView.redo() : false;
     },
     setTheme: function(themeName) {
       return true;
