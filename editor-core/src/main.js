@@ -230,22 +230,17 @@ import './styles.css';
       return true;
     },
     typeText: function(text) {
-      if (!editorView) return false;
-      const buffer = editorView.getBuffer();
-      const sel = editorView.getSelection();
-      const offset = buffer.getOffsetAt(sel.getPosition());
-      buffer.insert(offset, text);
-      editorView.render();
+      if (!editorView || !text) return false;
+      editorView.typeText(text);
       return true;
     },
     handleKey: function(key) {
-      if (!editorView) return false;
-      return true;
+      if (!editorView || !key) return false;
+      return editorView.handleKey(key);
     },
     revealLine: function(lineNumber, column = 1) {
       if (!editorView) return false;
-      const targetPos = new Position(lineNumber, column);
-      editorView.setSelection(new Selection(targetPos.lineNumber, targetPos.column, targetPos.lineNumber, targetPos.column));
+      editorView.revealLine(lineNumber, column, true);
       return true;
     },
     getLineCount: function() {
@@ -262,6 +257,12 @@ import './styles.css';
       if (actionId === 'editor.action.commentLine') {
         return editorView.toggleLineComment() ? 'OK' : 'FAILED';
       }
+      if (actionId === 'undo') {
+        return editorView.undo() ? 'OK' : 'FAILED';
+      }
+      if (actionId === 'redo') {
+        return editorView.redo() ? 'OK' : 'FAILED';
+      }
       return 'OK';
     },
     getLanguageId: function() {
@@ -274,6 +275,18 @@ import './styles.css';
       return true;
     },
     applySettings: function(settings) {
+      if (!editorView || !settings) return false;
+      const opts = {};
+      if (typeof settings.fontSize === 'number' && settings.fontSize > 0) {
+        opts.fontSize = settings.fontSize;
+      }
+      if (typeof settings.fontFamily === 'string' && settings.fontFamily.trim().length > 0) {
+        opts.fontFamily = settings.fontFamily;
+      }
+      if (typeof settings.lineHeight === 'number' && settings.lineHeight > 0) {
+        opts.lineHeight = settings.lineHeight;
+      }
+      editorView.updateOptions(opts);
       return true;
     },
     undo: function() {

@@ -3,7 +3,7 @@ package com.cresteditor.core.commands
 import android.content.Context
 import android.webkit.WebView
 import androidx.compose.material3.DrawerState
-import com.cresteditor.editor.MonacoBridge
+import com.cresteditor.editor.MythicBridge
 import com.cresteditor.ui.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -110,14 +110,14 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Shift+Alt+F"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.formatDocument")
+                MythicBridge.triggerAction(getWebView(), "editor.action.formatDocument")
             },
             CommandItem(
                 id = "editor.action.formatSelection",
                 title = "Editor: Format Selection",
                 category = "Editor"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.formatSelection")
+                MythicBridge.triggerAction(getWebView(), "editor.action.formatSelection")
             },
             CommandItem(
                 id = "editor.action.commentLine",
@@ -125,7 +125,7 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Ctrl+/"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.commentLine")
+                MythicBridge.triggerAction(getWebView(), "editor.action.commentLine")
             },
             CommandItem(
                 id = "editor.action.blockComment",
@@ -133,7 +133,7 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Shift+Alt+A"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.blockComment")
+                MythicBridge.triggerAction(getWebView(), "editor.action.blockComment")
             },
             CommandItem(
                 id = "editor.action.indentLines",
@@ -141,7 +141,7 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Ctrl+]"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.indentLines")
+                MythicBridge.triggerAction(getWebView(), "editor.action.indentLines")
             },
             CommandItem(
                 id = "editor.action.outdentLines",
@@ -149,7 +149,7 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Ctrl+["
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.outdentLines")
+                MythicBridge.triggerAction(getWebView(), "editor.action.outdentLines")
             },
 
             // -----------------------------------------------------------------
@@ -161,7 +161,7 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Shift+Alt+Down"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.copyLinesDownAction")
+                MythicBridge.triggerAction(getWebView(), "editor.action.copyLinesDownAction")
             },
             CommandItem(
                 id = "editor.action.copyLinesUpAction",
@@ -169,7 +169,7 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Shift+Alt+Up"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.copyLinesUpAction")
+                MythicBridge.triggerAction(getWebView(), "editor.action.copyLinesUpAction")
             },
             CommandItem(
                 id = "editor.action.moveLinesDownAction",
@@ -177,7 +177,7 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Alt+Down"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.moveLinesDownAction")
+                MythicBridge.triggerAction(getWebView(), "editor.action.moveLinesDownAction")
             },
             CommandItem(
                 id = "editor.action.moveLinesUpAction",
@@ -185,7 +185,7 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Alt+Up"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.moveLinesUpAction")
+                MythicBridge.triggerAction(getWebView(), "editor.action.moveLinesUpAction")
             },
             CommandItem(
                 id = "editor.action.deleteLines",
@@ -193,7 +193,7 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Ctrl+Shift+K"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.deleteLines")
+                MythicBridge.triggerAction(getWebView(), "editor.action.deleteLines")
             },
             CommandItem(
                 id = "editor.action.insertLineAfter",
@@ -201,7 +201,7 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Ctrl+Enter"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.insertLineAfter")
+                MythicBridge.triggerAction(getWebView(), "editor.action.insertLineAfter")
             },
             CommandItem(
                 id = "editor.action.insertLineBefore",
@@ -209,42 +209,42 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Ctrl+Shift+Enter"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.insertLineBefore")
+                MythicBridge.triggerAction(getWebView(), "editor.action.insertLineBefore")
             },
             CommandItem(
                 id = "editor.action.joinLines",
                 title = "Editor: Join Lines",
                 category = "Editor"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.joinLines")
+                MythicBridge.triggerAction(getWebView(), "editor.action.joinLines")
             },
             CommandItem(
                 id = "editor.action.removeDuplicateLines",
                 title = "Editor: Delete Duplicate Lines",
                 category = "Editor"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.removeDuplicateLines")
+                MythicBridge.triggerAction(getWebView(), "editor.action.removeDuplicateLines")
             },
             CommandItem(
                 id = "editor.action.trimTrailingWhitespace",
                 title = "Editor: Trim Trailing Whitespace",
                 category = "Editor"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.trimTrailingWhitespace")
+                MythicBridge.triggerAction(getWebView(), "editor.action.trimTrailingWhitespace")
             },
             CommandItem(
                 id = "editor.action.sortLinesAscending",
                 title = "Editor: Sort Lines Ascending",
                 category = "Editor"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.sortLinesAscending")
+                MythicBridge.triggerAction(getWebView(), "editor.action.sortLinesAscending")
             },
             CommandItem(
                 id = "editor.action.sortLinesDescending",
                 title = "Editor: Sort Lines Descending",
                 category = "Editor"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.sortLinesDescending")
+                MythicBridge.triggerAction(getWebView(), "editor.action.sortLinesDescending")
             },
 
             // -----------------------------------------------------------------
@@ -255,42 +255,42 @@ object EditorCommandProvider {
                 title = "Editor: Transform to Uppercase",
                 category = "Editor"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.transformToUppercase")
+                MythicBridge.triggerAction(getWebView(), "editor.action.transformToUppercase")
             },
             CommandItem(
                 id = "editor.action.transformToLowercase",
                 title = "Editor: Transform to Lowercase",
                 category = "Editor"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.transformToLowercase")
+                MythicBridge.triggerAction(getWebView(), "editor.action.transformToLowercase")
             },
             CommandItem(
                 id = "editor.action.transformToTitlecase",
                 title = "Editor: Transform to Title Case",
                 category = "Editor"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.transformToTitlecase")
+                MythicBridge.triggerAction(getWebView(), "editor.action.transformToTitlecase")
             },
             CommandItem(
                 id = "editor.action.transformToCamelcase",
                 title = "Editor: Transform to Camel Case",
                 category = "Editor"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.transformToCamelcase")
+                MythicBridge.triggerAction(getWebView(), "editor.action.transformToCamelcase")
             },
             CommandItem(
                 id = "editor.action.transformToSnakecase",
                 title = "Editor: Transform to Snake Case",
                 category = "Editor"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.transformToSnakecase")
+                MythicBridge.triggerAction(getWebView(), "editor.action.transformToSnakecase")
             },
             CommandItem(
                 id = "editor.action.transformToKebabcase",
                 title = "Editor: Transform to Kebab Case",
                 category = "Editor"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.transformToKebabcase")
+                MythicBridge.triggerAction(getWebView(), "editor.action.transformToKebabcase")
             },
 
             // -----------------------------------------------------------------
@@ -302,7 +302,7 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Ctrl+F"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "actions.find")
+                MythicBridge.triggerAction(getWebView(), "actions.find")
             },
             CommandItem(
                 id = "editor.action.selectAll",
@@ -310,7 +310,7 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Ctrl+A"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.selectAll")
+                MythicBridge.triggerAction(getWebView(), "editor.action.selectAll")
             },
             CommandItem(
                 id = "editor.action.addSelectionToNextFindMatch",
@@ -318,7 +318,7 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Ctrl+D"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.addSelectionToNextFindMatch")
+                MythicBridge.triggerAction(getWebView(), "editor.action.addSelectionToNextFindMatch")
             },
             CommandItem(
                 id = "editor.action.changeAll",
@@ -326,7 +326,7 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Ctrl+F2"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.changeAll")
+                MythicBridge.triggerAction(getWebView(), "editor.action.changeAll")
             },
             CommandItem(
                 id = "workbench.action.quickOpen",
@@ -350,7 +350,7 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Ctrl+Shift+\\"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.action.jumpToBracket")
+                MythicBridge.triggerAction(getWebView(), "editor.action.jumpToBracket")
             },
             CommandItem(
                 id = "editor.action.foldAll",
@@ -358,7 +358,7 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Ctrl+K Ctrl+0"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.foldAll")
+                MythicBridge.triggerAction(getWebView(), "editor.foldAll")
             },
             CommandItem(
                 id = "editor.action.unfoldAll",
@@ -366,7 +366,7 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Ctrl+K Ctrl+J"
             ) {
-                MonacoBridge.triggerAction(getWebView(), "editor.unfoldAll")
+                MythicBridge.triggerAction(getWebView(), "editor.unfoldAll")
             },
             CommandItem(
                 id = "undo",
@@ -374,7 +374,7 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Ctrl+Z"
             ) {
-                MonacoBridge.undo(getWebView())
+                MythicBridge.undo(getWebView())
             },
             CommandItem(
                 id = "redo",
@@ -382,7 +382,7 @@ object EditorCommandProvider {
                 category = "Editor",
                 shortcut = "Ctrl+Y"
             ) {
-                MonacoBridge.redo(getWebView())
+                MythicBridge.redo(getWebView())
             }
         )
     }

@@ -5,7 +5,7 @@ import android.webkit.WebView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cresteditor.core.filesystem.GitignoreMatcher
-import com.cresteditor.editor.MonacoBridge
+import com.cresteditor.editor.MythicBridge
 import com.cresteditor.ui.components.CrestTabItem
 import com.cresteditor.ui.components.FileTreeItem
 import com.cresteditor.workspace.ProjectFileIndex
@@ -163,8 +163,8 @@ class MainViewModel : ViewModel() {
             lastSavedContentHashes[path] = diskContentHash
             lastSavedTimestamps[path] = file.lastModified()
 
-            val webView = MonacoBridge.getActiveWebView()
-            MonacoBridge.syncExternalContent(webView, path, diskContent)
+            val webView = MythicBridge.getActiveWebView()
+            MythicBridge.syncExternalContent(webView, path, diskContent)
         }
     }
 
@@ -216,7 +216,7 @@ class MainViewModel : ViewModel() {
                 _activeTabId.value = path
                 _activeLanguage.value = language
                 withContext(Dispatchers.Main) {
-                    MonacoBridge.openFile(webView, path, null, language, existingTab.isModified)
+                    MythicBridge.openFile(webView, path, null, language, existingTab.isModified)
                 }
                 return@launch
             }
@@ -234,7 +234,7 @@ class MainViewModel : ViewModel() {
             _activeLanguage.value = language
 
             withContext(Dispatchers.Main) {
-                MonacoBridge.openFile(webView, path, content, language, false)
+                MythicBridge.openFile(webView, path, content, language, false)
             }
         }
     }
@@ -246,7 +246,7 @@ class MainViewModel : ViewModel() {
         lastSavedContentHashes.remove(tabId)
         lastSavedTimestamps.remove(tabId)
         inFlightSaves.remove(tabId)
-        MonacoBridge.closeFile(webView, tabId)
+        MythicBridge.closeFile(webView, tabId)
 
         if (_activeTabId.value == tabId) {
             if (newTabs.isNotEmpty()) {
@@ -255,7 +255,7 @@ class MainViewModel : ViewModel() {
             } else {
                 _activeTabId.value = ""
                 _activeLanguage.value = "-"
-                MonacoBridge.clearEditor(webView)
+                MythicBridge.clearEditor(webView)
             }
         }
     }
@@ -302,7 +302,7 @@ class MainViewModel : ViewModel() {
         val currentActive = _activeTabId.value
         if (currentActive.isEmpty()) return
 
-        MonacoBridge.getContent(webView) { content ->
+        MythicBridge.getContent(webView) { content ->
             saveContent(context, currentActive, content)
         }
     }
@@ -441,7 +441,7 @@ class MainViewModel : ViewModel() {
                     val rel = tab.id.removePrefix(oldPrefix)
                     val newChildPath = newPrefix + rel
                     val childLang = WorkspaceManager.detectLanguage(tab.title)
-                    MonacoBridge.renameModel(webView, tab.id, newChildPath, childLang)
+                    MythicBridge.renameModel(webView, tab.id, newChildPath, childLang)
                     tab.copy(id = newChildPath)
                 } else {
                     tab
@@ -467,7 +467,7 @@ class MainViewModel : ViewModel() {
             }
 
             // Update Monaco Editor Model URI & Content
-            MonacoBridge.renameModel(webView, oldPath, newPath, newLanguage)
+            MythicBridge.renameModel(webView, oldPath, newPath, newLanguage)
         }
     }
 }

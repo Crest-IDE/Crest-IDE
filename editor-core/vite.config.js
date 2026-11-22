@@ -7,7 +7,6 @@ export default defineConfig({
   publicDir: resolve(__dirname, 'public'),
   resolve: {
     alias: {
-      'vs': resolve(__dirname, 'src/core/vs'),
       '@mythic': resolve(__dirname, '../../Mythic-Editor/src'),
       'mythic-editor': resolve(__dirname, '../../Mythic-Editor/src'),
       'web-tree-sitter': resolve(__dirname, 'node_modules/web-tree-sitter/tree-sitter.js')

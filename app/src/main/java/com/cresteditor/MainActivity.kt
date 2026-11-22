@@ -40,7 +40,7 @@ import com.cresteditor.core.commands.EditorCommandProvider
 import com.cresteditor.core.permission.StoragePermissionHelper
 import com.cresteditor.core.platform.KeyboardHelper
 import com.cresteditor.core.settings.SettingsManager
-import com.cresteditor.editor.MonacoBridge
+import com.cresteditor.editor.MythicBridge
 import com.cresteditor.runtime.RootfsManager
 import com.cresteditor.runtime.TerminalSessionManager
 import com.cresteditor.ui.MainViewModel
@@ -156,7 +156,7 @@ class MainActivity : ComponentActivity() {
                 DisposableEffect(Unit) {
                     onToggleCommandPalette = { prefix ->
                         commandPaletteInitialQuery = prefix
-                        MonacoBridge.getLineCount(webView) { count ->
+                        MythicBridge.getLineCount(webView) { count ->
                             currentLineCount = count
                         }
                         showCommandPalette = true
@@ -200,11 +200,11 @@ class MainActivity : ComponentActivity() {
                 val deleteTargetItem by viewModel.deleteTargetItem.collectAsState()
                 val toastMessage by viewModel.toastMessage.collectAsState()
 
-                val monacoBridge = remember {
-                    MonacoBridge(
+                val mythicBridge = remember {
+                    MythicBridge(
                         context = context.applicationContext,
                         onReadyCallback = {
-                            MonacoBridge.applySettings(webView, settingsManager.getSettingsJsonObject())
+                            MythicBridge.applySettings(webView, settingsManager.getSettingsJsonObject())
                             val activePath = viewModel.activeTabId.value
                             if (activePath.isNotEmpty()) {
                                 viewModel.openFile(File(activePath), webView)
@@ -235,7 +235,7 @@ class MainActivity : ComponentActivity() {
 
                 DisposableEffect(settingsManager, webView) {
                     val listener: (String, Any) -> Unit = { _, _ ->
-                        MonacoBridge.applySettings(webView, settingsManager.getSettingsJsonObject())
+                        MythicBridge.applySettings(webView, settingsManager.getSettingsJsonObject())
                     }
                     settingsManager.addChangeListener(listener)
                     onDispose {
@@ -344,10 +344,10 @@ class MainActivity : ComponentActivity() {
                                         viewModel.requestSave(context, webView)
                                     },
                                     onUndoClick = {
-                                        MonacoBridge.undo(webView)
+                                        MythicBridge.undo(webView)
                                     },
                                     onRedoClick = {
-                                        MonacoBridge.redo(webView)
+                                        MythicBridge.redo(webView)
                                     },
                                     onSettingsClick = {
                                         viewModel.setShowSettings(true)
@@ -388,12 +388,12 @@ class MainActivity : ComponentActivity() {
                                             CrestEditorScreen(
                                                 onWebViewCreated = { wv ->
                                                     webView = wv
-                                                    monacoBridge.setWebView(wv)
+                                                    mythicBridge.setWebView(wv)
                                                     if (activeTabId.isNotEmpty()) {
                                                         viewModel.openFile(File(activeTabId), wv)
                                                     }
                                                 },
-                                                bridge = monacoBridge,
+                                                bridge = mythicBridge,
                                                 backgroundColor = settingsManager.getThemeBackgroundColor(),
                                                 onEditorFocus = { activeFocus = ActiveFocus.MONACO }
                                             )
@@ -500,17 +500,17 @@ class MainActivity : ComponentActivity() {
                                             TerminalSessionManager.activeSession?.write(key)
                                         } else {
                                             when (key) {
-                                                "\u001b" -> MonacoBridge.handleKey(webView, "ESC")
-                                                "\t" -> MonacoBridge.handleKey(webView, "TAB")
-                                                "\u001b[1~" -> MonacoBridge.handleKey(webView, "HOME")
-                                                "\u001b[4~" -> MonacoBridge.handleKey(webView, "END")
-                                                "\u001b[5~" -> MonacoBridge.handleKey(webView, "PGUP")
-                                                "\u001b[6~" -> MonacoBridge.handleKey(webView, "PGDN")
-                                                "\u001b[A" -> MonacoBridge.handleKey(webView, "UP")
-                                                "\u001b[B" -> MonacoBridge.handleKey(webView, "DOWN")
-                                                "\u001b[C" -> MonacoBridge.handleKey(webView, "RIGHT")
-                                                "\u001b[D" -> MonacoBridge.handleKey(webView, "LEFT")
-                                                else -> MonacoBridge.typeText(webView, key)
+                                                "\u001b" -> MythicBridge.handleKey(webView, "ESC")
+                                                "\t" -> MythicBridge.handleKey(webView, "TAB")
+                                                "\u001b[1~" -> MythicBridge.handleKey(webView, "HOME")
+                                                "\u001b[4~" -> MythicBridge.handleKey(webView, "END")
+                                                "\u001b[5~" -> MythicBridge.handleKey(webView, "PGUP")
+                                                "\u001b[6~" -> MythicBridge.handleKey(webView, "PGDN")
+                                                "\u001b[A" -> MythicBridge.handleKey(webView, "UP")
+                                                "\u001b[B" -> MythicBridge.handleKey(webView, "DOWN")
+                                                "\u001b[C" -> MythicBridge.handleKey(webView, "RIGHT")
+                                                "\u001b[D" -> MythicBridge.handleKey(webView, "LEFT")
+                                                else -> MythicBridge.typeText(webView, key)
                                             }
                                         }
                                         // Deactivate single-tap (non-locked) modifiers after key action
@@ -575,13 +575,13 @@ class MainActivity : ComponentActivity() {
                             viewModel.openFile(File(path), webView)
                             if (targetLine != null) {
                                 webView?.postDelayed({
-                                    MonacoBridge.revealLine(webView, targetLine, targetCol ?: 1)
+                                    MythicBridge.revealLine(webView, targetLine, targetCol ?: 1)
                                 }, 150)
                             }
                         },
                         onNavigateLine = { line, col ->
                             showCommandPalette = false
-                            MonacoBridge.revealLine(webView, line, col)
+                            MythicBridge.revealLine(webView, line, col)
                         },
                         onOpenView = { viewId ->
                             showCommandPalette = false
