@@ -366,39 +366,49 @@ class NativeBootstrapManager(private val context: Context) {
                 patch_single_deb() {
                     local deb="${'$'}1"
                     [ -f "${'$'}deb" ] || return 0
-                    if grep -q "com.termux" "${'$'}deb" 2>/dev/null; then
-                        echo -e "\033[1;34m[Crest Auto-Patch]\033[0m Patching $(basename "${'$'}deb") for com.crestd..."
-                        local tmp
-                        tmp=${'$'}(mktemp -d /data/data/com.crestd/files/usr/tmp/deb_patch.XXXXXX)
-                        (
-                            cd "${'$'}tmp"
-                            busybox ar x "${'$'}deb"
+
+                    local tmp
+                    tmp=${'$'}(mktemp -d "${'$'}TMPDIR/deb_patch.XXXXXX")
+                    (
+                        cd "${'$'}tmp"
+                        busybox ar x "${'$'}deb"
+                        
+                        local data_archive
+                        data_archive=${'$'}(ls data.tar.* 2>/dev/null | head -n 1)
+                        local control_archive
+                        control_archive=${'$'}(ls control.tar.* 2>/dev/null | head -n 1)
+                        
+                        local needs_patch=0
+                        if [ -n "${'$'}data_archive" ] && tar -tf "${'$'}data_archive" 2>/dev/null | grep -q "com\.termux"; then
+                            needs_patch=1
+                        fi
+
+                        if [ "${'$'}needs_patch" -eq 1 ]; then
+                            echo -e "\033[1;34m[Crest Auto-Patch]\033[0m Patching $(basename "${'$'}deb") for com.crestd..."
                             
-                            local data_archive
-                            data_archive=${'$'}(ls data.tar.* 2>/dev/null | head -n 1)
-                            if [ -n "${'$'}data_archive" ]; then
-                                mkdir -p data_out
-                                tar -xf "${'$'}data_archive" --transform='s/com\.termux/com.crestd/g' -C data_out
-                                grep -rlI "com\.termux" data_out 2>/dev/null | xargs -r sed -i 's/com\.termux/com.crestd/g' 2>/dev/null || true
-                                tar -I "gzip -1" -cf data.tar.gz -C data_out ./data
-                                rm -rf data_out "${'$'}data_archive"
-                            fi
+                            mkdir -p data_out
+                            tar -xf "${'$'}data_archive" --transform='s/com\.termux/com.crestd/g' -C data_out
+                            grep -rlI "com\.termux" data_out 2>/dev/null | xargs -r sed -i 's/com\.termux/com.crestd/g' 2>/dev/null || true
+                            tar -czf data.tar.gz -C data_out ./data
+                            rm -rf data_out "${'$'}data_archive"
                             
-                            local control_archive
-                            control_archive=${'$'}(ls control.tar.* 2>/dev/null | head -n 1)
                             if [ -n "${'$'}control_archive" ]; then
                                 mkdir -p control_out
                                 tar -xf "${'$'}control_archive" -C control_out
-                                sed -i 's/com\.termux/com.crestd/g' control_out/* 2>/dev/null || true
-                                tar -I "gzip -1" -cf control.tar.gz -C control_out .
+                                for f in control_out/*; do
+                                    if [ -f "${'$'}f" ]; then
+                                        sed -i 's/com\.termux/com.crestd/g' "${'$'}f" 2>/dev/null || true
+                                    fi
+                                done
+                                tar -czf control.tar.gz -C control_out .
                                 rm -rf control_out "${'$'}control_archive"
                             fi
                             
                             rm -f "${'$'}deb"
                             busybox ar r "${'$'}deb" debian-binary control.tar.gz data.tar.gz
-                        )
-                        rm -rf "${'$'}tmp"
-                    fi
+                        fi
+                    )
+                    rm -rf "${'$'}tmp"
                 }
 
                 if [ ${'$'}# -gt 0 ]; then
