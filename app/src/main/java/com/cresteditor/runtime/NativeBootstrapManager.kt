@@ -297,6 +297,7 @@ class NativeBootstrapManager(private val context: Context) {
             if (file.isFile && !file.isSymbolicLink()) {
                 val isBinOrLib = file.absolutePath.contains("/bin/") ||
                         file.absolutePath.contains("/lib/") ||
+                        file.absolutePath.contains("/libexec/") ||
                         file.absolutePath.contains("/etc/")
 
                 if (isBinOrLib && file.length() < 30 * 1024 * 1024) { // Under 30MB
