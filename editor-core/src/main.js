@@ -9,6 +9,8 @@ import { PieceTreeTextBuffer } from '@mythic/core/buffer/PieceTreeTextBuffer';
 import { EditorView } from '@mythic/view/EditorView';
 import { Position } from '@mythic/core/model/Position';
 import { Selection } from '@mythic/core/model/Selection';
+import { LanguageConfigurationRegistry } from '@mythic/core/language/LanguageConfigurationRegistry';
+import { TreeSitterHighlighter } from '@mythic/syntax/TreeSitterHighlighter';
 import '@mythic/view/editor.css';
 import './styles.css';
 
@@ -49,8 +51,34 @@ import './styles.css';
   let editorView = null;
   let currentFilePath = null;
   let isEditorReadySent = false;
+  let highlighter = null;
   const fileBuffers = new Map();
   const container = document.getElementById('editor-container') || document.body;
+
+  async function ensureSyntaxHighlighter(langOrPath) {
+    if (!langOrPath) return;
+    const registry = LanguageConfigurationRegistry.getInstance();
+    const langId = langOrPath.includes('.')
+      ? registry.getLanguageIdByFilename(langOrPath)
+      : langOrPath;
+    const grammar = registry.getGrammarName(langId) || langId;
+
+    if (!highlighter) {
+      highlighter = new TreeSitterHighlighter(grammar);
+    }
+
+    try {
+      const isReady = await highlighter.ready();
+      if (isReady) {
+        highlighter.setLanguage(grammar);
+        if (editorView) {
+          editorView.setTokensProvider(highlighter);
+        }
+      }
+    } catch (err) {
+      console.warn('[CrestEditor] Failed to load Tree-sitter grammar for', grammar, err);
+    }
+  }
 
   function sendEditorReadyOnce() {
     if (isEditorReadySent) return;
@@ -97,6 +125,11 @@ import './styles.css';
       }
     });
 
+    // Warm up Tree-sitter WASM core in the background
+    TreeSitterHighlighter.init().catch((err) => {
+      console.warn('[CrestEditor] Background Tree-sitter init note:', err);
+    });
+
     sendEditorReadyOnce();
   }
 
@@ -117,6 +150,7 @@ import './styles.css';
         editorView.setBuffer(buffer);
         if (currentFilePath) {
           editorView.setLanguage(currentFilePath);
+          ensureSyntaxHighlighter(currentFilePath);
         }
         editorView.focus();
       }
@@ -147,6 +181,7 @@ import './styles.css';
         const resolvedLang = languageId || filePath;
         if (resolvedLang) {
           editorView.setLanguage(resolvedLang);
+          ensureSyntaxHighlighter(resolvedLang);
         }
         editorView.focus();
       }
@@ -172,7 +207,9 @@ import './styles.css';
       if (currentFilePath === oldPath) {
         currentFilePath = newPath;
         if (editorView) {
-          editorView.setLanguage(languageId || newPath);
+          const newLang = languageId || newPath;
+          editorView.setLanguage(newLang);
+          ensureSyntaxHighlighter(newLang);
         }
       }
       return true;
@@ -229,6 +266,12 @@ import './styles.css';
     },
     getLanguageId: function() {
       return editorView ? editorView.getLanguageId() : 'plaintext';
+    },
+    setLanguage: function(langOrPath) {
+      if (!editorView || !langOrPath) return false;
+      editorView.setLanguage(langOrPath);
+      ensureSyntaxHighlighter(langOrPath);
+      return true;
     },
     applySettings: function(settings) {
       return true;
