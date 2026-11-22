@@ -4,7 +4,7 @@ import { resolve } from 'path';
 export default defineConfig({
   root: './',
   base: './',
-  publicDir: resolve(__dirname, 'public'),
+  publicDir: resolve(__dirname, '../../Mythic-Editor/public'),
   resolve: {
     alias: {
       '@mythic': resolve(__dirname, '../../Mythic-Editor/src'),
