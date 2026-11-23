@@ -1,6 +1,9 @@
 #!/system/bin/sh
 export LD_LIBRARY_PATH=$PREFIX
 
+# Clean prefix: map /data/user/0/ to clean /data/data/
+DATA_DATA_PREFIX=$(echo "$PREFIX" | sed 's|^/data/user/0/|/data/data/|')
+
 ROOTFS_DIR="$PREFIX/rootfs"
 if [ ! -d "$ROOTFS_DIR" ] && [ -d "$PREFIX/alpine" ]; then
     ROOTFS_DIR="$PREFIX/alpine"
@@ -12,6 +15,13 @@ export TMPDIR="$PREFIX/tmp"
 mkdir -p "$ROOTFS_DIR/tmp"
 mkdir -p "$ROOTFS_DIR/tmp/shm"
 mkdir -p "$PREFIX/public"
+
+# Ensure clean /data/data and /data/user/0 hierarchy exists inside rootfs
+mkdir -p "$ROOTFS_DIR/data/data/com.cresteditor"
+mkdir -p "$ROOTFS_DIR/data/user"
+if [ ! -e "$ROOTFS_DIR/data/user/0" ]; then
+    ln -sf /data/data "$ROOTFS_DIR/data/user/0" 2>/dev/null || true
+fi
 
 FAILSAFE=false
 INSTALLING=false
@@ -68,7 +78,7 @@ fi
 
 # Bind app paths
 if [ -d "$PREFIX" ]; then
-    CHROOT_ARGS="$CHROOT_ARGS -b $PREFIX:$PREFIX -b $PREFIX:/files"
+    CHROOT_ARGS="$CHROOT_ARGS -b $PREFIX:$DATA_DATA_PREFIX -b $PREFIX:$PREFIX -b $PREFIX:/files"
     CHROOT_ARGS="$CHROOT_ARGS -b $PREFIX/public:/public -b $PREFIX/public:/home -b $PREFIX/public:/root"
 fi
 if [ -n "$NATIVE_DIR" ] && [ -d "$NATIVE_DIR" ]; then
@@ -86,6 +96,10 @@ if [ -n "$INITIAL_CWD" ] && [ -d "$INITIAL_CWD" ]; then
             CWD_TARGET="${INITIAL_CWD#/storage/emulated/0}"
             CWD_TARGET="/sdcard$CWD_TARGET"
             ;;
+        /data/user/0*)
+            CWD_TARGET="${INITIAL_CWD#/data/user/0}"
+            CWD_TARGET="/data/data$CWD_TARGET"
+            ;;
         *)
             CWD_TARGET="$INITIAL_CWD"
             ;;
@@ -94,7 +108,7 @@ fi
 CHROOT_ARGS="$CHROOT_ARGS -w $CWD_TARGET"
 
 # Pass guest environment variables
-CHROOT_ARGS="$CHROOT_ARGS -E PREFIX=$PREFIX"
+CHROOT_ARGS="$CHROOT_ARGS -E PREFIX=$DATA_DATA_PREFIX"
 CHROOT_ARGS="$CHROOT_ARGS -E HOME=/public"
 CHROOT_ARGS="$CHROOT_ARGS -E TERM=${TERM:-xterm-256color}"
 CHROOT_ARGS="$CHROOT_ARGS -E COLORTERM=${COLORTERM:-truecolor}"

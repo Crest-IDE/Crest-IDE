@@ -751,9 +751,12 @@ class RootfsManager(private val context: Context) {
 
         TerminalBridgeServer.start(context, filesDir, rootfsDir)
         TerminalBridgeServer.ensureBridgeScriptsInstalled(rootfsDir, filesDir)
+        ensureMountPointsExist()
 
+        val cleanFilesPath = normalizePath(filesPath)
         val env = mutableListOf(
-            "PREFIX=$filesPath",
+            "PREFIX=$cleanFilesPath",
+            "HOST_PREFIX=$filesPath",
             "NATIVE_DIR=$nativeDir",
             "HOME=/public",
             "TERM=xterm-256color",
@@ -789,11 +792,24 @@ class RootfsManager(private val context: Context) {
     }
 
     fun ensureMountPointsExist(sysMounts: List<String> = emptyList()) {
-        val baseMounts = listOf("sdcard", "storage", "storage/emulated/0", "mnt", "data", "files", "tmp", "dev", "proc", "sys", "dev/shm", "tmp/shm")
+        val baseMounts = listOf(
+            "sdcard", "storage", "storage/emulated/0", "mnt", "data", "data/data",
+            "data/data/com.cresteditor", "data/user", "files", "tmp", "dev", "proc", "sys", "dev/shm", "tmp/shm"
+        )
         for (m in baseMounts) {
             val d = File(rootfsDir, m)
             if (!d.exists()) {
                 try { d.mkdirs() } catch (_: Exception) {}
+            }
+        }
+        val user0 = File(rootfsDir, "data/user/0")
+        if (!user0.exists()) {
+            try {
+                android.system.Os.symlink("/data/data", user0.absolutePath)
+            } catch (_: Exception) {
+                try {
+                    Runtime.getRuntime().exec(arrayOf("ln", "-sf", "/data/data", user0.absolutePath)).waitFor()
+                } catch (_: Exception) {}
             }
         }
         for (m in sysMounts) {
@@ -811,6 +827,8 @@ class RootfsManager(private val context: Context) {
         fixPermissionsAndLinks()
         val nativeDir = context.applicationInfo.nativeLibraryDir
         val filesPath = filesDir.absolutePath
+        val cleanFilesPath = normalizePath(filesPath)
+        ensureMountPointsExist()
 
         val chrootBinInNative = File(nativeDir, "libcrest-chroot.so").takeIf { it.exists() }?.absolutePath
         var chrootBinInFiles = File(filesDir, "libcrest-chroot.so").takeIf { it.exists() }?.absolutePath
@@ -853,6 +871,7 @@ class RootfsManager(private val context: Context) {
 
         // App paths
         cmd.addAll(listOf(
+            "-b", "$filesPath:$cleanFilesPath",
             "-b", "$filesPath:$filesPath",
             "-b", "$filesPath:/files",
             "-b", "$filesPath/public:/public",
@@ -869,7 +888,7 @@ class RootfsManager(private val context: Context) {
 
         // Environment
         cmd.addAll(listOf(
-            "-E", "PREFIX=$filesPath",
+            "-E", "PREFIX=$cleanFilesPath",
             "-E", "HOME=/root",
             "-E", "TERM=xterm-256color",
             "-E", "TMPDIR=/tmp",
@@ -882,7 +901,7 @@ class RootfsManager(private val context: Context) {
 
         val pb = ProcessBuilder(cmd)
         val env = pb.environment()
-        env["PREFIX"] = filesPath
+        env["PREFIX"] = cleanFilesPath
         env["NATIVE_DIR"] = nativeDir
         env["TMPDIR"] = "$filesPath/tmp"
         env["HOME"] = "/root"
@@ -891,10 +910,15 @@ class RootfsManager(private val context: Context) {
     }
 
     fun normalizePath(path: String): String {
-        return if (path.startsWith("/storage/emulated/0")) {
+        val p = if (path.startsWith("/storage/emulated/0")) {
             path.replace("/storage/emulated/0", "/sdcard")
         } else {
             path
+        }
+        return if (p.startsWith("/data/user/0/")) {
+            p.replace("/data/user/0/", "/data/data/")
+        } else {
+            p
         }
     }
 }
