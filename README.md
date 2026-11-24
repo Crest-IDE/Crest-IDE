@@ -1,4 +1,4 @@
-# Crest-Editor
+# Crest-IDE
 
 A high-performance Android code editor built with Jetpack Compose and a desktop-grade editor engine, designed for mobile developers who want a VS Code-like workflow on Android.
 
@@ -10,14 +10,14 @@ A high-performance Android code editor built with Jetpack Compose and a desktop-
 
 ## Overview
 
-Crest-Editor brings the feel of a desktop IDE to Android devices. It combines a touch-optimized Monaco editor, a Linux-based development environment, and a native Compose interface to provide a fast, flexible, and familiar coding experience for mobile development.
+Crest-IDE brings the feel of a desktop IDE to Android devices. It combines a touch-optimized Monaco editor, a Linux-based development environment, and a native Compose interface to provide a fast, flexible, and familiar coding experience for mobile development.
 
 This project aims to make coding on Android feel less like a compromise and more like a proper workspace: multi-tab editing, terminal access, filesystem tools, settings management, and developer workflows that work well on smaller screens.
 
 ## Key Features
 
 ### Desktop-grade code editor
-- Monaco editor with VS Code-style editing behavior
+-  Mythic-Editor with VS Code-style editing behavior
 - Touch-aware selection and interaction model for mobile screens
 - Floating actions for copy, paste, select all, and editing shortcuts
 - Keyboard-friendly workflow with support for common developer actions
@@ -42,7 +42,7 @@ This project aims to make coding on Android feel less like a compromise and more
 ## Architecture
 
 ```text
-CrestEditor Android Shell
+Crest-IDE Android Shell
     |
     +-- Jetpack Compose UI
     |   +-- Tabs and workspace explorer
@@ -64,30 +64,6 @@ CrestEditor Android Shell
         +-- Process and terminal bridge
 ```
 
-## Project Structure
-
-```text
-Crest-Editor/
-├── app/
-│   ├── src/main/
-│   │   ├── AndroidManifest.xml
-│   │   ├── assets/
-│   │   ├── java/com/cresteditor/
-│   │   ├── core/
-│   │   ├── editor/
-│   │   ├── runtime/
-│   │   ├── settings/
-│   │   ├── ui/
-│   │   └── workspace/
-│   └── build.gradle.kts
-├── editor-core/
-│   ├── src/
-│   ├── vite.config.js
-│   └── package.json
-├── README.md
-├── LICENSE
-└── gradle.properties
-```
 ## Requirements
 
 - Android SDK with compile support for SDK 34
@@ -95,30 +71,6 @@ Crest-Editor/
 - JDK 17 or newer
 - Node.js 18+ for editor-core build steps
 - Arm64 target support for native runtime components
-
-## Build and Run
-
-### Build Monaco editor core
-
-```bash
-cd editor-core
-npm install
-node ./node_modules/vite/bin/vite.js build
-```
-
-This generates the editor assets used by the Android app.
-
-### Build the Android app
-
-```bash
-./gradlew assembleDebug
-```
-
-The produced APK is typically located under:
-
-```text
-app/build/outputs/apk/debug/app-debug.apk
-```
 
 ## License
 
