@@ -5,9 +5,6 @@ export LD_LIBRARY_PATH=$PREFIX
 DATA_DATA_PREFIX=$(echo "$PREFIX" | sed 's|^/data/user/0/|/data/data/|')
 
 ROOTFS_DIR="$PREFIX/rootfs"
-if [ ! -d "$ROOTFS_DIR" ] && [ -d "$PREFIX/alpine" ]; then
-    ROOTFS_DIR="$PREFIX/alpine"
-fi
 
 mkdir -p "$PREFIX/tmp"
 chmod 700 "$PREFIX/tmp" 2>/dev/null || true
@@ -128,5 +125,5 @@ if [ "$FAILSAFE" = true ] && [ "$INSTALLING" != true ]; then
     echo "$$" > "$PREFIX/pid" 2>/dev/null || true
     exec "$CREST_CHROOT" $CHROOT_ARGS "$ROOTFS_DIR" /bin/sh
 else
-    exec "$CREST_CHROOT" $CHROOT_ARGS "$ROOTFS_DIR" /bin/sh "$PREFIX/init-alpine.sh" "$@"
+    exec "$CREST_CHROOT" $CHROOT_ARGS "$ROOTFS_DIR" /bin/sh "$PREFIX/init-rootfs.sh" "$@"
 fi

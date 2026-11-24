@@ -88,12 +88,9 @@ fi
 EOF
     chmod +x /initrc
 
-    # Also mirror to $PREFIX/rootfs/initrc and $PREFIX/alpine/initrc if directory exists
+    # Also mirror to $PREFIX/rootfs/initrc if directory exists
     if [ -d "$PREFIX/rootfs" ]; then
         cp -f /initrc "$PREFIX/rootfs/initrc" 2>/dev/null || true
-    fi
-    if [ -d "$PREFIX/alpine" ]; then
-        cp -f /initrc "$PREFIX/alpine/initrc" 2>/dev/null || true
     fi
 
     # Ensure /etc/profile.d has updated repository URL
@@ -108,10 +105,10 @@ EOF
 
 # First-time terminal open script execution
 if [ ! -f "$PREFIX/.first_boot_script_run" ]; then
-    if [ -f "$PREFIX/setup-alpine.sh" ]; then
-        /bin/sh "$PREFIX/setup-alpine.sh" 2>/dev/null || true
-    elif [ -f /setup-alpine.sh ]; then
-        /bin/sh /setup-alpine.sh 2>/dev/null || true
+    if [ -f "$PREFIX/setup-rootfs.sh" ]; then
+        /bin/sh "$PREFIX/setup-rootfs.sh" 2>/dev/null || true
+    elif [ -f /setup-rootfs.sh ]; then
+        /bin/sh /setup-rootfs.sh 2>/dev/null || true
     fi
     touch "$PREFIX/.first_boot_script_run" 2>/dev/null || true
 fi

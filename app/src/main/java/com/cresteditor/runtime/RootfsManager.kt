@@ -26,14 +26,7 @@ class RootfsManager(private val context: Context) {
     }
 
     val filesDir: File get() = context.filesDir
-    val rootfsDir: File get() {
-        val modernDir = File(filesDir, "rootfs")
-        val legacyDir = File(filesDir, "alpine")
-        return if (modernDir.exists()) modernDir else if (legacyDir.exists()) legacyDir else modernDir
-    }
-
-    // Backwards-compatibility alias
-    val alpineDir: File get() = rootfsDir
+    val rootfsDir: File get() = File(filesDir, "rootfs")
 
     val isInstalled: Boolean get() = rootfsDir.exists() && validateRootfs(rootfsDir)
 
@@ -88,12 +81,12 @@ class RootfsManager(private val context: Context) {
 
             // 1. Copy environment setup scripts from assets
             onProgress("Preparing environment scripts...")
-            copyAssetFile("alpine/init-sandbox.sh", File(filesDir, "init-sandbox.sh"))
-            copyAssetFile("alpine/init-alpine.sh", File(filesDir, "init-alpine.sh"))
-            copyAssetFile("alpine/setup-alpine.sh", File(filesDir, "setup-alpine.sh"))
+            copyAssetFile("rootfs/init-sandbox.sh", File(filesDir, "init-sandbox.sh"))
+            copyAssetFile("rootfs/init-rootfs.sh", File(filesDir, "init-rootfs.sh"))
+            copyAssetFile("rootfs/setup-rootfs.sh", File(filesDir, "setup-rootfs.sh"))
             makeExecutable(File(filesDir, "init-sandbox.sh"))
-            makeExecutable(File(filesDir, "init-alpine.sh"))
-            makeExecutable(File(filesDir, "setup-alpine.sh"))
+            makeExecutable(File(filesDir, "init-rootfs.sh"))
+            makeExecutable(File(filesDir, "setup-rootfs.sh"))
 
             // 2. Set up Crest-Chroot native engine
             onProgress("Setting up Crest-Chroot execution engine...")
@@ -103,9 +96,8 @@ class RootfsManager(private val context: Context) {
             if (isInstalled) {
                 fixPermissionsAndLinks()
                 ensureMountPointsExist()
-                ensureLegacySymlink()
                 TerminalBridgeServer.ensureBridgeScriptsInstalled(rootfsDir, filesDir)
-                onProgress("Void Linux environment active! ✔")
+                onProgress("RootFS environment active!")
                 return true
             }
 
@@ -177,12 +169,11 @@ class RootfsManager(private val context: Context) {
                 if (backupDir.exists()) backupDir.deleteRecursively()
                 archiveFile.delete()
 
-                ensureLegacySymlink()
                 fixPermissionsAndLinks()
                 ensureMountPointsExist()
                 TerminalBridgeServer.ensureBridgeScriptsInstalled(targetDir, filesDir)
 
-                onProgress("Void Linux RootFS initialized successfully! 🚀")
+                onProgress("RootFS initialized successfully! 🚀")
                 return true
 
             } catch (e: Exception) {
@@ -636,18 +627,9 @@ class RootfsManager(private val context: Context) {
         }
     }
 
-    fun ensureLegacySymlink(target: File = rootfsDir) {
-        try {
-            val legacyDir = File(filesDir, "alpine")
-            if (!legacyDir.exists() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Files.createSymbolicLink(legacyDir.toPath(), target.toPath())
-            }
-        } catch (_: Exception) {}
-    }
-
     private fun copyNativeBinaries(arch: String) {
         val nativeDir = context.applicationInfo.nativeLibraryDir
-        val nativeLibsDir = "alpine/$arch/libs"
+        val nativeLibsDir = "rootfs/$arch/libs"
         val nativeLibs = arrayOf("libcrest-chroot.so")
 
         for (libName in nativeLibs) {
@@ -676,13 +658,7 @@ class RootfsManager(private val context: Context) {
 
     private fun copyAssetFile(assetPath: String, outFile: File) {
         if (outFile.exists()) outFile.delete()
-        val stream = try {
-            context.assets.open(assetPath)
-        } catch (_: Exception) {
-            val fallback = if (assetPath.startsWith("rootfs/")) assetPath.replace("rootfs/", "alpine/") else assetPath
-            context.assets.open(fallback)
-        }
-        stream.use { input ->
+        context.assets.open(assetPath).use { input ->
             FileOutputStream(outFile).use { output ->
                 input.copyTo(output)
             }
@@ -705,10 +681,10 @@ class RootfsManager(private val context: Context) {
 
         // Ensure init scripts are present and up to date
         try {
-            copyAssetFile("alpine/init-sandbox.sh", File(filesDir, "init-sandbox.sh"))
+            copyAssetFile("rootfs/init-sandbox.sh", File(filesDir, "init-sandbox.sh"))
             makeExecutable(File(filesDir, "init-sandbox.sh"))
-            copyAssetFile("alpine/init-alpine.sh", File(filesDir, "init-alpine.sh"))
-            makeExecutable(File(filesDir, "init-alpine.sh"))
+            copyAssetFile("rootfs/init-rootfs.sh", File(filesDir, "init-rootfs.sh"))
+            makeExecutable(File(filesDir, "init-rootfs.sh"))
         } catch (e: Exception) {
             Log.w(TAG, "Failed refreshing init scripts: ${e.message}")
         }

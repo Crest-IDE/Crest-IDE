@@ -6,7 +6,7 @@ echo "[1/2] Setting DNS resolver..."
 printf 'nameserver 1.1.1.1\nnameserver 8.8.8.8\n' > /etc/resolv.conf
 
 if command -v xbps-install >/dev/null 2>&1; then
-    echo "[2/2] Void Linux (Glibc) environment detected."
+    echo "[2/2] Linux environment detected."
     if [ ! -e /usr/share/terminfo/x/xterm-256color ]; then
         echo "Configuring terminal support (ncurses)..."
         xbps-install -Sy ncurses-base ncurses-term || true
@@ -18,7 +18,7 @@ elif command -v apk >/dev/null 2>&1; then
         cp -f "$PREFIX/crest@crestcode.rsa.pub" /etc/apk/keys/
     fi
 
-    echo "[3/4] Adding Alpine & CrestEditor Repositories..."
+    echo "[3/4] Adding Repositories..."
     if ! grep -q "edge/main" /etc/apk/repositories 2>/dev/null; then
         cat >> /etc/apk/repositories <<'EOF'
 https://dl-cdn.alpinelinux.org/alpine/edge/main
@@ -30,7 +30,7 @@ EOF
         echo 'https://crest-editor-dev.github.io/Crest-Packages' >> /etc/apk/repositories
     fi
 
-    echo "[4/4] Updating APK indexes & installing Bash..."
+    echo "[4/4] Updating Package indexes..."
     apk update || true
     apk add bash jq || true
 fi
@@ -47,7 +47,7 @@ else
 fi
 
 if command -v xbps-install >/dev/null 2>&1; then
-    echo "Package Manager: XBPS (Void Glibc)"
+    echo "Package Manager: XBPS"
 elif command -v apk >/dev/null 2>&1; then
-    echo "Package Manager: APK (Alpine Musl)"
+    echo "Package Manager: APK"
 fi
