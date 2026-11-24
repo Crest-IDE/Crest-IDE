@@ -72,7 +72,7 @@ fun CrestTabBar(
                 Spacer(modifier = Modifier.width(6.dp))
 
                 Text(
-                    text = if (tab.isOrphaned) "${tab.title} (deleted)" else tab.title,
+                    text = tab.title,
                     color = if (tab.isOrphaned) androidx.compose.ui.graphics.Color(0xFFF14C4C) else textColor,
                     fontSize = 13.sp,
                     fontStyle = if (tab.isOrphaned) FontStyle.Italic else FontStyle.Normal,
