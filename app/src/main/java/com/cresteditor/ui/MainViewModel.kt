@@ -49,6 +49,10 @@ class MainViewModel : ViewModel() {
     private val _deleteTargetItem = MutableStateFlow<FileTreeItem?>(null)
     val deleteTargetItem: StateFlow<FileTreeItem?> = _deleteTargetItem.asStateFlow()
 
+    // Unsaved changes close confirmation state
+    private val _pendingCloseTab = MutableStateFlow<CrestTabItem?>(null)
+    val pendingCloseTab: StateFlow<CrestTabItem?> = _pendingCloseTab.asStateFlow()
+
     private val _toastMessage = MutableStateFlow<String?>(null)
     val toastMessage: StateFlow<String?> = _toastMessage.asStateFlow()
 
@@ -256,6 +260,64 @@ class MainViewModel : ViewModel() {
                 _activeTabId.value = ""
                 _activeLanguage.value = "-"
                 MythicBridge.clearEditor(webView)
+            }
+        }
+    }
+
+    fun requestCloseTab(tabId: String, webView: WebView?) {
+        val tab = _openTabs.value.find { it.id == tabId } ?: return
+        if (tab.isModified) {
+            _pendingCloseTab.value = tab
+        } else {
+            closeTab(tabId, webView)
+        }
+    }
+
+    fun dismissCloseDialog() {
+        _pendingCloseTab.value = null
+    }
+
+    fun discardAndCloseTab(webView: WebView?) {
+        val tab = _pendingCloseTab.value ?: return
+        _pendingCloseTab.value = null
+        closeTab(tab.id, webView)
+    }
+
+    fun saveAndCloseTab(context: Context, webView: WebView?) {
+        val tab = _pendingCloseTab.value ?: return
+        _pendingCloseTab.value = null
+        if (_activeTabId.value == tab.id) {
+            MythicBridge.getContent(webView) { content ->
+                viewModelScope.launch {
+                    val targetFile = File(tab.id)
+                    val writeResult = WorkspaceManager.writeFileContent(targetFile, content)
+                    withContext(Dispatchers.Main) {
+                        writeResult.onSuccess {
+                            lastSavedContentHashes[tab.id] = content.hashCode()
+                            lastSavedTimestamps[tab.id] = targetFile.lastModified()
+                            closeTab(tab.id, webView)
+                        }.onFailure { ex ->
+                            _toastMessage.value = "Save failed: ${ex.localizedMessage}"
+                        }
+                    }
+                }
+            }
+        } else {
+            openFile(File(tab.id), webView)
+            MythicBridge.getContent(webView) { content ->
+                viewModelScope.launch {
+                    val targetFile = File(tab.id)
+                    val writeResult = WorkspaceManager.writeFileContent(targetFile, content)
+                    withContext(Dispatchers.Main) {
+                        writeResult.onSuccess {
+                            lastSavedContentHashes[tab.id] = content.hashCode()
+                            lastSavedTimestamps[tab.id] = targetFile.lastModified()
+                            closeTab(tab.id, webView)
+                        }.onFailure { ex ->
+                            _toastMessage.value = "Save failed: ${ex.localizedMessage}"
+                        }
+                    }
+                }
             }
         }
     }

@@ -60,7 +60,7 @@ object EditorCommandProvider {
             ) {
                 val currentTab = viewModel.activeTabId.value
                 if (currentTab.isNotEmpty()) {
-                    viewModel.closeTab(currentTab, getWebView())
+                    viewModel.requestCloseTab(currentTab, getWebView())
                 }
             },
 

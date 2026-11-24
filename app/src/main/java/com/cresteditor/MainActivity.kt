@@ -267,6 +267,23 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
+                // Unsaved Changes Confirmation Dialog
+                val pendingCloseTab by viewModel.pendingCloseTab.collectAsState()
+                if (pendingCloseTab != null) {
+                    val tab = pendingCloseTab!!
+                    VSCodeDialog(
+                        title = "Do you want to save the changes you made to ${tab.title}?",
+                        message = "Your changes will be lost if you don't save them.",
+                        confirmButtonText = "Save",
+                        neutralButtonText = "Don't Save",
+                        dismissButtonText = "Cancel",
+                        onConfirm = { viewModel.saveAndCloseTab(context, webView) },
+                        onNeutral = { viewModel.discardAndCloseTab(webView) },
+                        onDismiss = { viewModel.dismissCloseDialog() },
+                        onDismissRequest = { viewModel.dismissCloseDialog() }
+                    )
+                }
+
                 var activeFocus by remember { mutableStateOf(ActiveFocus.NONE) }
 
                 Box(modifier = Modifier.fillMaxSize()) {
@@ -367,7 +384,7 @@ class MainActivity : ComponentActivity() {
                                             viewModel.openFile(File(tabId), webView)
                                         },
                                         onTabClose = { tabId ->
-                                            viewModel.closeTab(tabId, webView)
+                                            viewModel.requestCloseTab(tabId, webView)
                                         }
                                     )
                                 }

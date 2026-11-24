@@ -52,9 +52,11 @@ fun VSCodeDialog(
     message: String? = null,
     confirmButtonText: String = "OK",
     dismissButtonText: String? = "Cancel",
+    neutralButtonText: String? = null,
     isDestructive: Boolean = false,
     onConfirm: () -> Unit,
     onDismiss: (() -> Unit)? = null,
+    onNeutral: (() -> Unit)? = null,
     properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
     content: (@Composable ColumnScope.() -> Unit)? = null
 ) {
@@ -109,6 +111,16 @@ fun VSCodeDialog(
                             text = dismissButtonText,
                             onClick = {
                                 onDismiss?.invoke() ?: onDismissRequest()
+                            },
+                            isPrimary = false
+                        )
+                    }
+
+                    if (!neutralButtonText.isNullOrBlank()) {
+                        VSCodeActionButton(
+                            text = neutralButtonText,
+                            onClick = {
+                                onNeutral?.invoke()
                             },
                             isPrimary = false
                         )
