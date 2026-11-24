@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cresteditor.icons.Codicons
 import com.cresteditor.ui.theme.*
 
 data class CrestTabItem(
@@ -81,27 +82,26 @@ fun CrestTabBar(
 
                 Spacer(modifier = Modifier.width(6.dp))
 
-                if (tab.isModified) {
-                    Box(
-                        modifier = Modifier
-                            .size(6.dp)
-                            .clip(CircleShape)
-                            .background(CrestAccentYellow)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(4.dp))
-
+                // Close / Dirty Action Button (VS Code style: cross turns into dot when unsaved)
                 IconButton(
                     onClick = { onTabClose(tab.id) },
                     modifier = Modifier.size(20.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Close Tab",
-                        tint = CrestTextSecondary,
-                        modifier = Modifier.size(14.dp)
-                    )
+                    if (tab.isModified) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(CrestTextActive)
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Codicons.Close,
+                            contentDescription = "Close Tab",
+                            tint = CrestTextSecondary,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
                 }
             }
 
