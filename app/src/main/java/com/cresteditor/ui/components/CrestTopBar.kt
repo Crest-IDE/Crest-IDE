@@ -47,7 +47,7 @@ fun CrestTopBar(
         ) {
             IconButton(
                 onClick = onMenuClick,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(30.dp)
             ) {
                 Icon(
                     imageVector = Codicons.Menu,
@@ -57,33 +57,33 @@ fun CrestTopBar(
                 )
             }
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(6.dp))
 
             // Back navigation (Undo)
             IconButton(
                 onClick = onUndoClick,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(28.dp)
             ) {
                 Icon(
                     imageVector = Codicons.ArrowLeft,
                     contentDescription = "Navigate Back",
                     tint = CrestTextPrimary,
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(17.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(2.dp))
 
             // Forward navigation (Redo)
             IconButton(
                 onClick = onRedoClick,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(28.dp)
             ) {
                 Icon(
                     imageVector = Codicons.ArrowRight,
                     contentDescription = "Navigate Forward",
                     tint = CrestTextPrimary.copy(alpha = 0.75f),
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(17.dp)
                 )
             }
         }
@@ -93,21 +93,21 @@ fun CrestTopBar(
         // - Positioned at Alignment.Center relative to toolbar's full width
         // - Uses Codicons.Search and Codicons.ChevronDown
         // =====================================================================
-        val maxAvailableCenterWidth = (totalWidth - 240.dp).coerceAtLeast(110.dp)
-        val searchWidth = (totalWidth * 0.44f).coerceIn(140.dp, 520.dp).coerceAtMost(maxAvailableCenterWidth)
+        val maxAvailableCenterWidth = (totalWidth - 208.dp).coerceAtLeast(120.dp)
+        val searchWidth = (totalWidth * 0.52f).coerceIn(160.dp, 560.dp).coerceAtMost(maxAvailableCenterWidth)
 
         Row(
             modifier = Modifier
                 .align(Alignment.Center)
                 .width(searchWidth)
-                .height(30.dp)
+                .height(32.dp)
                 .background(
                     color = Color(0xFF2E2E2E),
                     shape = RoundedCornerShape(8.dp)
                 )
                 .border(
-                    width = 1.dp,
-                    color = Color(0xFF424242),
+                    width = 1.5.dp,
+                    color = Color(0xFF555555),
                     shape = RoundedCornerShape(8.dp)
                 )
                 .clickable { onSearchClick() }
@@ -118,7 +118,7 @@ fun CrestTopBar(
                 imageVector = Codicons.Search,
                 contentDescription = "Search",
                 tint = Color(0xFF9D9D9D),
-                modifier = Modifier.size(14.dp)
+                modifier = Modifier.size(15.dp)
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -126,7 +126,7 @@ fun CrestTopBar(
             Text(
                 text = projectName,
                 color = Color(0xFFCCCCCC),
-                fontSize = 12.sp,
+                fontSize = 12.5.sp,
                 fontWeight = FontWeight.Normal,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
