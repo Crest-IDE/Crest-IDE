@@ -678,12 +678,47 @@ class RootfsManager(private val context: Context) {
         file.setWritable(true, true)
     }
 
+    private fun buildEnvironment(
+        workingDir: File,
+        preferredShell: String? = null
+    ): Array<String> {
+        val nativeDir = context.applicationInfo.nativeLibraryDir
+        val filesPath = filesDir.absolutePath
+
+        val chrootBinInNative = File(nativeDir, "libcrest-chroot.so").takeIf { it.exists() }?.absolutePath
+        var chrootBinInFiles = File(filesDir, "libcrest-chroot.so").takeIf { it.exists() }?.absolutePath
+
+        if (chrootBinInNative == null && chrootBinInFiles == null) {
+            copyNativeBinaries(getArchName())
+            chrootBinInFiles = File(filesDir, "libcrest-chroot.so").takeIf { it.exists() }?.absolutePath
+        }
+
+        val crestChrootBin = chrootBinInNative ?: chrootBinInFiles ?: File(filesDir, "libcrest-chroot.so").absolutePath
+        val cleanFilesPath = normalizePath(filesPath)
+
+        val env = mutableListOf(
+            "PREFIX=$cleanFilesPath",
+            "HOST_PREFIX=$filesPath",
+            "NATIVE_DIR=$nativeDir",
+            "HOME=/public",
+            "TERM=xterm-256color",
+            "TMPDIR=$filesPath/tmp",
+            "CREST_CHROOT_BIN=$crestChrootBin",
+            "LD_LIBRARY_PATH=$filesPath:$nativeDir",
+            "INITIAL_CWD=${normalizePath(workingDir.absolutePath)}",
+            "CREST_BRIDGE_PORT=${TerminalBridgeServer.activePort}"
+        )
+        if (!preferredShell.isNullOrBlank()) {
+            env.add("PREFERRED_SHELL=$preferredShell")
+        }
+        return env.toTypedArray()
+    }
+
     fun createTerminalSession(
         client: com.termux.terminal.TerminalSessionClient,
         initialPath: String? = null,
         preferredShell: String? = null
     ): com.termux.terminal.TerminalSession {
-        val nativeDir = context.applicationInfo.nativeLibraryDir
         val filesPath = filesDir.absolutePath
 
         // Ensure init scripts are present and up to date
@@ -696,15 +731,6 @@ class RootfsManager(private val context: Context) {
             Log.w(TAG, "Failed refreshing init scripts: ${e.message}")
         }
 
-        val chrootBinInNative = File(nativeDir, "libcrest-chroot.so").takeIf { it.exists() }?.absolutePath
-        var chrootBinInFiles = File(filesDir, "libcrest-chroot.so").takeIf { it.exists() }?.absolutePath
-
-        if (chrootBinInNative == null && chrootBinInFiles == null) {
-            copyNativeBinaries(getArchName())
-            chrootBinInFiles = File(filesDir, "libcrest-chroot.so").takeIf { it.exists() }?.absolutePath
-        }
-
-        val crestChrootBin = chrootBinInNative ?: chrootBinInFiles ?: File(filesDir, "libcrest-chroot.so").absolutePath
         val initSandboxScript = File(filesDir, "init-sandbox.sh").absolutePath
 
         val publicDir = File(filesDir, "public")
@@ -736,23 +762,7 @@ class RootfsManager(private val context: Context) {
         TerminalBridgeServer.ensureBridgeScriptsInstalled(rootfsDir, filesDir)
         ensureMountPointsExist()
 
-        val cleanFilesPath = normalizePath(filesPath)
-        val env = mutableListOf(
-            "PREFIX=$cleanFilesPath",
-            "HOST_PREFIX=$filesPath",
-            "NATIVE_DIR=$nativeDir",
-            "HOME=/public",
-            "TERM=xterm-256color",
-            "TMPDIR=$filesPath/tmp",
-            "CREST_CHROOT_BIN=$crestChrootBin",
-            "LD_LIBRARY_PATH=$filesPath:$nativeDir",
-            "INITIAL_CWD=${normalizePath(workingDir.absolutePath)}",
-            "CREST_BRIDGE_PORT=${TerminalBridgeServer.activePort}"
-        )
-        if (!effectiveShell.isNullOrBlank()) {
-            env.add("PREFERRED_SHELL=$effectiveShell")
-        }
-        val envList = env.toTypedArray()
+        val envList = buildEnvironment(workingDir, effectiveShell)
 
         val shellPath = "/system/bin/sh"
         val args = arrayOf("/system/bin/sh", initSandboxScript)
@@ -780,8 +790,24 @@ class RootfsManager(private val context: Context) {
         val readyFlagFile = File(filesDir, ".rootfs_ready")
         if (readyFlagFile.exists()) readyFlagFile.delete()
 
+        // Ensure helper init scripts exist before bootstrap loop executes
+        try {
+            copyAssetFile("rootfs/init-sandbox.sh", File(filesDir, "init-sandbox.sh"))
+            makeExecutable(File(filesDir, "init-sandbox.sh"))
+            copyAssetFile("rootfs/init-rootfs.sh", File(filesDir, "init-rootfs.sh"))
+            makeExecutable(File(filesDir, "init-rootfs.sh"))
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed refreshing init scripts in bootstrap: ${e.message}")
+        }
+
         val publicDir = File(filesDir, "public")
         if (!publicDir.exists()) publicDir.mkdirs()
+
+        val tmpDir = File(filesDir, "tmp")
+        if (!tmpDir.exists()) tmpDir.mkdirs()
+        tmpDir.setReadable(true, true)
+        tmpDir.setWritable(true, true)
+        tmpDir.setExecutable(true, true)
 
         val workingDir = if (!initialPath.isNullOrBlank() && File(initialPath).exists()) {
             File(initialPath)
@@ -789,22 +815,26 @@ class RootfsManager(private val context: Context) {
             publicDir
         }
 
+        val effectiveShell = runCatching {
+            val settingsFile = File(filesDir, "settings.json")
+            if (settingsFile.exists()) {
+                val json = org.json.JSONObject(settingsFile.readText())
+                json.optString("terminal.integrated.shell", null)
+            } else null
+        }.getOrNull()
+
+        val envList = buildEnvironment(workingDir, effectiveShell)
+
         val initSandboxScript = File(filesDir, "init-sandbox.sh").absolutePath
         val shellPath = "/system/bin/sh"
         val loopCmd = "while [ ! -f \"$filesPath/.rootfs_ready\" ]; do sleep 0.2; done; rm -f \"$filesPath/.rootfs_ready\"; exec \"$shellPath\" \"$initSandboxScript\""
         val args = arrayOf("/system/bin/sh", "-c", loopCmd)
 
-        val env = arrayOf(
-            "PREFIX=$filesPath",
-            "HOME=$filesPath",
-            "TERM=xterm-256color"
-        )
-
         return com.termux.terminal.TerminalSession(
             shellPath,
             workingDir.absolutePath,
             args,
-            env,
+            envList,
             10000,
             client
         )
