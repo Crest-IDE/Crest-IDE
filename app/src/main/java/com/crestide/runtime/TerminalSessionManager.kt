@@ -42,42 +42,77 @@ object TerminalSessionManager {
         }
 
         isInitializing = true
-        onStatusUpdate("Initializing Void Linux Environment...")
+        val rootfsManager = RootfsManager(context)
 
-        thread {
+        val client = NativeTerminalClient(context, onSessionFinishedCallback = {
+            activeSession = null
+            activeClient = null
+            onStatusUpdate("Void Linux Process Terminated")
+        }).apply {
+            onModifiersChanged = this@TerminalSessionManager.onModifiersChanged
+        }
+
+        if (rootfsManager.isInstalled) {
+            onStatusUpdate("Starting Terminal...")
+            thread {
+                try {
+                    val session = rootfsManager.createTerminalSession(client, initialPath)
+                    activeClient = client
+                    activeSession = session
+                    isInitializing = false
+                    onStatusUpdate("Void Linux Active")
+                    onSessionReady(session)
+                } catch (e: Exception) {
+                    isInitializing = false
+                    Log.e(TAG, "Error initializing terminal session", e)
+                    onStatusUpdate("Error: ${e.localizedMessage}")
+                }
+            }
+        } else {
+            // First time setup - launch bootstrap terminal session immediately
+            onStatusUpdate("Setting up Void Linux...")
             try {
-                val rootfsManager = RootfsManager(context)
-                if (rootfsManager.isInstalled) {
-                    onStatusUpdate("Starting Terminal...")
-                } else {
-                    val ready = rootfsManager.setupRootfsEnvironment { status ->
-                        onStatusUpdate(status)
-                    }
-                    if (!ready) {
-                        isInitializing = false
-                        onStatusUpdate("Void Linux Setup Failed")
-                        return@thread
-                    }
-                }
-
-                val client = NativeTerminalClient(context, onSessionFinishedCallback = {
-                    activeSession = null
-                    activeClient = null
-                    onStatusUpdate("Void Linux Process Terminated")
-                }).apply {
-                    onModifiersChanged = this@TerminalSessionManager.onModifiersChanged
-                }
-                val session = rootfsManager.createTerminalSession(client, initialPath)
-
+                val bootstrapSession = rootfsManager.createBootstrapTerminalSession(client, initialPath)
                 activeClient = client
-                activeSession = session
-                isInitializing = false
+                activeSession = bootstrapSession
+                onSessionReady(bootstrapSession)
 
-                onStatusUpdate("Void Linux Active")
-                onSessionReady(session)
+                thread {
+                    try {
+                        Thread.sleep(250) // Brief breather for TerminalView attachment
+                        bootstrapSession.writeToTerminal("\r\n\u001B[1;36m┌──────────────────────────────────────────────┐\u001B[0m\r\n")
+                        bootstrapSession.writeToTerminal("\u001B[1;36m│   Crest-IDE • Void Linux Environment Setup   │\u001B[0m\r\n")
+                        bootstrapSession.writeToTerminal("\u001B[1;36m└──────────────────────────────────────────────┘\u001B[0m\r\n\r\n")
+
+                        val ready = rootfsManager.setupRootfsEnvironment { status ->
+                            onStatusUpdate(status)
+                            if (status.startsWith("Downloading Void RootFS:")) {
+                                bootstrapSession.writeToTerminal("\r\u001B[K\u001B[1;34m>>>\u001B[0m $status")
+                            } else {
+                                bootstrapSession.writeToTerminal("\r\n\u001B[1;32m✔\u001B[0m $status\r\n")
+                            }
+                        }
+
+                        if (ready) {
+                            bootstrapSession.writeToTerminal("\r\n\u001B[1;32m✔ Environment initialized! Launching Void Linux...\u001B[0m\r\n\r\n")
+                            isInitializing = false
+                            onStatusUpdate("Void Linux Active")
+                            File(context.filesDir, ".rootfs_ready").createNewFile()
+                        } else {
+                            isInitializing = false
+                            onStatusUpdate("Void Linux Setup Failed")
+                            bootstrapSession.writeToTerminal("\r\n\u001B[1;31m✖ Void Linux Setup Failed\u001B[0m\r\n")
+                        }
+                    } catch (e: Exception) {
+                        isInitializing = false
+                        Log.e(TAG, "Error during rootfs setup", e)
+                        onStatusUpdate("Error: ${e.localizedMessage}")
+                        bootstrapSession.writeToTerminal("\r\n\u001B[1;31m✖ Setup error: ${e.localizedMessage}\u001B[0m\r\n")
+                    }
+                }
             } catch (e: Exception) {
                 isInitializing = false
-                Log.e(TAG, "Error initializing terminal session", e)
+                Log.e(TAG, "Failed launching bootstrap terminal session", e)
                 onStatusUpdate("Error: ${e.localizedMessage}")
             }
         }

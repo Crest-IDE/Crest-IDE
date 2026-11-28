@@ -15,10 +15,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
@@ -78,10 +76,9 @@ fun TerminalScreen(
 
     val mainHandler = remember { Handler(Looper.getMainLooper()) }
     var statusText by remember { mutableStateOf("Initializing...") }
-    val activityLogs = remember { mutableStateListOf<String>() }
-    var currentSession by remember { mutableStateOf<TerminalSession?>(null) }
+    var currentSession by remember { mutableStateOf(TerminalSessionManager.activeSession?.takeIf { it.isRunning }) }
     var terminalViewRef by remember { mutableStateOf<TerminalView?>(null) }
-    var clientRef by remember { mutableStateOf<NativeTerminalClient?>(null) }
+    var clientRef by remember { mutableStateOf(TerminalSessionManager.activeClient) }
 
     val rootfsManager = remember { RootfsManager(context) }
 
@@ -100,18 +97,6 @@ fun TerminalScreen(
     fun postStatus(status: String) {
         mainHandler.post {
             statusText = status
-            val formatted = ">>> $status"
-            if (activityLogs.isEmpty()) {
-                activityLogs.add(formatted)
-            } else {
-                val lastIdx = activityLogs.lastIndex
-                val last = activityLogs[lastIdx]
-                if (status.startsWith("Downloading Void RootFS:") && last.startsWith(">>> Downloading Void RootFS:")) {
-                    activityLogs[lastIdx] = formatted
-                } else {
-                    activityLogs.add(formatted)
-                }
-            }
         }
     }
 
@@ -290,7 +275,6 @@ fun TerminalScreen(
             IconButton(
                 onClick = {
                     currentSession = null
-                    activityLogs.clear()
                     postStatus("Restarting Void Linux Session...")
                     TerminalSessionManager.restartSession(
                         context = context,
@@ -410,6 +394,18 @@ fun TerminalScreen(
                     }
                     terminalViewRef = view
 
+                    // If active session already exists and is running, attach immediately
+                    val existingSession = TerminalSessionManager.activeSession
+                    val existingClient = TerminalSessionManager.activeClient
+                    if (existingSession != null && existingSession.isRunning && existingClient != null) {
+                        currentSession = existingSession
+                        clientRef = existingClient
+                        existingClient.terminalView = view
+                        view.setTerminalViewClient(existingClient)
+                        view.attachSession(existingSession)
+                        view.requestFocus()
+                    }
+
                     TerminalSessionManager.getOrCreateSession(
                         context = ctx,
                         initialPath = initialPath,
@@ -446,50 +442,14 @@ fun TerminalScreen(
             )
 
             if (currentSession == null) {
-                val logScrollState = rememberScrollState()
-                LaunchedEffect(activityLogs.size, activityLogs.lastOrNull()) {
-                    logScrollState.animateScrollTo(logScrollState.maxValue)
-                }
-
-                Box(
+                androidx.compose.material3.LinearProgressIndicator(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color(0xFF0F172A))
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(logScrollState)
-                    ) {
-                        Text(
-                            text = "─── Void Linux Environment Boot & Setup ───",
-                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF64748B),
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-
-                        activityLogs.forEach { line ->
-                            val color = when {
-                                line.contains("Error", ignoreCase = true) || line.contains("failed", ignoreCase = true) -> Color(0xFFEF4444)
-                                line.contains("✔") || line.contains("🚀") || line.contains("passed", ignoreCase = true) || line.contains("successfully", ignoreCase = true) -> Color(0xFF22C55E)
-                                line.contains("Downloading", ignoreCase = true) || line.contains("Download started", ignoreCase = true) -> Color(0xFF38BDF8)
-                                line.contains("Verifying", ignoreCase = true) || line.contains("Validating", ignoreCase = true) -> Color(0xFFFBBF24)
-                                else -> Color(0xFFCBD5E1)
-                            }
-
-                            Text(
-                                text = line,
-                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                                fontSize = 12.sp,
-                                color = color,
-                                lineHeight = 18.sp
-                            )
-                        }
-                    }
-                }
+                        .fillMaxWidth()
+                        .height(2.dp)
+                        .align(Alignment.TopCenter),
+                    color = Color(0xFF007ACC),
+                    trackColor = Color(0xFF1E1E1E)
+                )
             }
         }
     }
