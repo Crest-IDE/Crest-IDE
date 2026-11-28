@@ -11,14 +11,12 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.filled.ViewQuilt
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -470,22 +468,6 @@ fun CommandPalette(
                             ),
                             cursorBrush = SolidColor(FocusBorder)
                         )
-                    }
-
-                    if (rawQuery.isNotEmpty()) {
-                        IconButton(
-                            onClick = {
-                                textFieldValue = TextFieldValue("", selection = TextRange.Zero)
-                            },
-                            modifier = Modifier.size(20.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Clear",
-                                tint = ShortcutColor,
-                                modifier = Modifier.size(13.dp)
-                            )
-                        }
                     }
                 }
 
