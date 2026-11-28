@@ -367,50 +367,7 @@ fun CommandPalette(
                         .padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Left Mode Indicator Icon / Glyph
-                    when (mode) {
-                        QuickAccessMode.COMMANDS -> {
-                            Text(
-                                text = ">",
-                                color = CategoryHeader,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        }
-                        QuickAccessMode.GOTO_LINE -> {
-                            Text(
-                                text = ":",
-                                color = CategoryHeader,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        }
-                        QuickAccessMode.HELP -> {
-                            Text(
-                                text = "?",
-                                color = CategoryHeader,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        }
-                        QuickAccessMode.VIEW -> {
-                            Text(
-                                text = "view",
-                                color = CategoryHeader,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                        }
-                        QuickAccessMode.FILES -> {
-                            // Exact VS Code & Zed behavior: no leading icon, keeping the input completely clean
-                        }
-                    }
-
-                    Box(modifier = Modifier.weight(1f)) {
+                    Box(modifier = Modifier.fillMaxWidth()) {
                         if (rawQuery.isEmpty()) {
                             Text(
                                 text = mode.placeholder,
