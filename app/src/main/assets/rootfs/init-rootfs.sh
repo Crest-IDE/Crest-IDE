@@ -61,10 +61,11 @@ fi
 
 
 
-    echo "$$" > "$PREFIX/pid"
+    echo "$$" > "$PREFIX/pid" 2>/dev/null || true
 
-    # Create initrc if it doesn't exist or needs update
-    cat <<'EOF' > /initrc
+    # Create initrc only if it doesn't exist
+    if [ ! -f /initrc ]; then
+        cat <<'EOF' > /initrc
 # Source rc files if they exist (POSIX compliant)
 if [ -f "/etc/profile" ]; then
     . "/etc/profile"
@@ -86,15 +87,11 @@ if [ -f "$HOME/.bashrc" ]; then
     . "$HOME/.bashrc"
 fi
 EOF
-    chmod +x /initrc
-
-    # Also mirror to $PREFIX/rootfs/initrc if directory exists
-    if [ -d "$PREFIX/rootfs" ]; then
-        cp -f /initrc "$PREFIX/rootfs/initrc" 2>/dev/null || true
+        chmod +x /initrc 2>/dev/null || true
     fi
 
     # Ensure /etc/profile.d has default shell optimizations
-    if [ -d /etc/profile.d ]; then
+    if [ -d /etc/profile.d ] && [ ! -f /etc/profile.d/crestide.sh ]; then
         cat <<'EOF' > /etc/profile.d/crestide.sh
 bind 'set enable-bracketed-paste on' 2>/dev/null || true
 EOF
@@ -135,36 +132,33 @@ resolve_shell_path() {
     return 1
 }
 
-# Locate settings.json (Single Source of Truth)
-SETTINGS_FILE=""
-if [ -n "$PREFIX" ] && [ -f "$PREFIX/settings.json" ]; then
-    SETTINGS_FILE="$PREFIX/settings.json"
-elif [ -f "/data/data/com.crestide/files/settings.json" ]; then
-    SETTINGS_FILE="/data/data/com.crestide/files/settings.json"
-fi
+CANDIDATE_SHELL="$PREFERRED_SHELL"
 
-CANDIDATE_SHELL=""
+# Only inspect settings.json if PREFERRED_SHELL was not provided
+if [ -z "$CANDIDATE_SHELL" ]; then
+    SETTINGS_FILE=""
+    if [ -n "$PREFIX" ] && [ -f "$PREFIX/settings.json" ]; then
+        SETTINGS_FILE="$PREFIX/settings.json"
+    elif [ -f "/data/data/com.crestide/files/settings.json" ]; then
+        SETTINGS_FILE="/data/data/com.crestide/files/settings.json"
+    fi
 
-if [ -n "$PREFERRED_SHELL" ]; then
-    CANDIDATE_SHELL="$PREFERRED_SHELL"
-elif [ -n "$SETTINGS_FILE" ] && [ -f "$SETTINGS_FILE" ]; then
-    if command -v jq >/dev/null 2>&1; then
-        CANDIDATE_SHELL="$(jq -r '.["terminal.integrated.shell"] // empty' "$SETTINGS_FILE" 2>/dev/null || true)"
-    else
-        CANDIDATE_SHELL="$(grep '"terminal.integrated.shell"' "$SETTINGS_FILE" 2>/dev/null | head -n 1 | sed -E 's/.*:[[:space:]]*"([^"]*)".*/\1/' || true)"
+    if [ -n "$SETTINGS_FILE" ] && [ -f "$SETTINGS_FILE" ]; then
+        if command -v jq >/dev/null 2>&1; then
+            CANDIDATE_SHELL="$(jq -r '.["terminal.integrated.shell"] // empty' "$SETTINGS_FILE" 2>/dev/null || true)"
+        else
+            CANDIDATE_SHELL="$(grep '"terminal.integrated.shell"' "$SETTINGS_FILE" 2>/dev/null | head -n 1 | sed -E 's/.*:[[:space:]]*"([^"]*)".*/\1/' || true)"
+        fi
     fi
 fi
-
-# Clean up legacy config file if present
-rm -f "$HOME/.config/crest/shell" 2>/dev/null || true
 
 TARGET_SHELL=""
 
 if [ -n "$CANDIDATE_SHELL" ]; then
     TARGET_SHELL="$(resolve_shell_path "$CANDIDATE_SHELL")"
     if [ -z "$TARGET_SHELL" ]; then
-        echo "[CrestEditor] Warning: Preferred shell '$CANDIDATE_SHELL' not found or not executable." >&2
-        echo "[CrestEditor] Falling back to default shell..." >&2
+        echo "[Crest-IDE] Warning: Preferred shell '$CANDIDATE_SHELL' not found or not executable." >&2
+        echo "[Crest-IDE] Falling back to default shell..." >&2
     fi
 fi
 
@@ -179,7 +173,7 @@ fi
 
 # Fatal check: prevent infinite loop if even /bin/sh is unavailable
 if [ -z "$TARGET_SHELL" ]; then
-    echo "[CrestEditor] Fatal Error: No usable shell (/bin/sh) found in system." >&2
+    echo "[Crest-IDE] Fatal Error: No usable shell (/bin/sh) found in system." >&2
     exit 1
 fi
 

@@ -21,7 +21,7 @@ class RootfsManager(private val context: Context) {
     companion object {
         private const val TAG = "RootfsManager"
         private val setupMutex = Any()
-        const val ROOTFS_DOWNLOAD_URL = "https://github.com/Crest-IDE-Dev/Crest-Rootfs/releases/download/latest/void-aarch64-rootfs.tar.xz"
+        const val ROOTFS_DOWNLOAD_URL = "https://github.com/Crest-IDE/Crest-Rootfs/releases/latest/download/void-aarch64-rootfs.tar.xz"
         const val EXPECTED_ROOTFS_SHA256 = "cd51d38c80a7a86a58891260f52a107bb68b7e862488daa4d877df6ba5106441"
     }
 
@@ -95,7 +95,6 @@ class RootfsManager(private val context: Context) {
 
             // 3. Check if already installed and validated
             if (isInstalled) {
-                fixPermissionsAndLinks()
                 ensureMountPointsExist()
                 TerminalBridgeServer.ensureBridgeScriptsInstalled(rootfsDir, filesDir)
                 onProgress("RootFS environment active!")
@@ -599,11 +598,8 @@ class RootfsManager(private val context: Context) {
             val targetDirs = listOf(
                 File(rootfsDir, "bin"),
                 File(rootfsDir, "sbin"),
-                File(rootfsDir, "lib"),
-                File(rootfsDir, "lib64"),
                 File(rootfsDir, "usr/bin"),
                 File(rootfsDir, "usr/sbin"),
-                File(rootfsDir, "usr/lib"),
                 File(rootfsDir, "libexec")
             )
 
@@ -657,12 +653,22 @@ class RootfsManager(private val context: Context) {
         }
     }
 
-    private fun copyAssetFile(assetPath: String, outFile: File) {
-        if (outFile.exists()) outFile.delete()
-        context.assets.open(assetPath).use { input ->
-            FileOutputStream(outFile).use { output ->
-                input.copyTo(output)
+    private fun copyAssetFile(assetPath: String, outFile: File, overwrite: Boolean = false) {
+        if (outFile.exists() && outFile.length() > 0 && !overwrite) {
+            return
+        }
+        val tmpFile = File(outFile.parentFile, "${outFile.name}.tmp")
+        try {
+            context.assets.open(assetPath).use { input ->
+                FileOutputStream(tmpFile).use { output ->
+                    input.copyTo(output)
+                }
             }
+            if (outFile.exists()) outFile.delete()
+            tmpFile.renameTo(outFile)
+        } catch (e: Exception) {
+            tmpFile.delete()
+            throw e
         }
     }
 
@@ -761,6 +767,49 @@ class RootfsManager(private val context: Context) {
         )
     }
 
+    /**
+     * Creates an interactive bootstrap terminal session displayed during first-time rootfs setup.
+     * It holds the terminal view open while Kotlin downloads & extracts the rootfs, printing logs
+     * directly into the terminal PTY, and seamlessly execs into Void Linux once ready.
+     */
+    fun createBootstrapTerminalSession(
+        client: com.termux.terminal.TerminalSessionClient,
+        initialPath: String? = null
+    ): com.termux.terminal.TerminalSession {
+        val filesPath = filesDir.absolutePath
+        val readyFlagFile = File(filesDir, ".rootfs_ready")
+        if (readyFlagFile.exists()) readyFlagFile.delete()
+
+        val publicDir = File(filesDir, "public")
+        if (!publicDir.exists()) publicDir.mkdirs()
+
+        val workingDir = if (!initialPath.isNullOrBlank() && File(initialPath).exists()) {
+            File(initialPath)
+        } else {
+            publicDir
+        }
+
+        val initSandboxScript = File(filesDir, "init-sandbox.sh").absolutePath
+        val shellPath = "/system/bin/sh"
+        val loopCmd = "while [ ! -f \"$filesPath/.rootfs_ready\" ]; do sleep 0.2; done; rm -f \"$filesPath/.rootfs_ready\"; exec \"$shellPath\" \"$initSandboxScript\""
+        val args = arrayOf("/system/bin/sh", "-c", loopCmd)
+
+        val env = arrayOf(
+            "PREFIX=$filesPath",
+            "HOME=$filesPath",
+            "TERM=xterm-256color"
+        )
+
+        return com.termux.terminal.TerminalSession(
+            shellPath,
+            workingDir.absolutePath,
+            args,
+            env,
+            10000,
+            client
+        )
+    }
+
     fun hasBinary(binaryName: String): Boolean {
         if (!isInstalled) return false
         val usrBin = File(rootfsDir, "usr/bin/$binaryName")
@@ -769,6 +818,10 @@ class RootfsManager(private val context: Context) {
     }
 
     fun ensureMountPointsExist(sysMounts: List<String> = emptyList()) {
+        val marker = File(rootfsDir, ".mounts_configured")
+        if (marker.exists() && sysMounts.isEmpty()) {
+            return
+        }
         val baseMounts = listOf(
             "sdcard", "storage", "storage/emulated/0", "mnt", "data", "data/data",
             "data/data/com.crestide", "data/user", "files", "tmp", "dev", "proc", "sys", "dev/shm", "tmp/shm"
@@ -798,6 +851,7 @@ class RootfsManager(private val context: Context) {
                 }
             }
         }
+        try { marker.createNewFile() } catch (_: Exception) {}
     }
 
     fun createProcessBuilder(commandInRootfs: List<String>): ProcessBuilder {

@@ -217,7 +217,12 @@ object TerminalBridgeServer {
      * Installs crest-open and crest-clipboard scripts plus universal compatibility
      * symlinks into rootfs /usr/local/bin and filesDir/bin.
      */
-    fun ensureBridgeScriptsInstalled(rootfsDir: File, filesDir: File) {
+    fun ensureBridgeScriptsInstalled(rootfsDir: File, filesDir: File, force: Boolean = false) {
+        val marker = File(rootfsDir, "usr/local/bin/.bridge_installed")
+        if (!force && marker.exists()) {
+            return
+        }
+
         val binDirs = listOf(
             File(rootfsDir, "usr/local/bin"),
             File(filesDir, "bin")
@@ -330,6 +335,7 @@ object TerminalBridgeServer {
                 Log.w(TAG, "Failed to deploy bridge scripts into ${binDir.absolutePath}: ${e.message}")
             }
         }
+        try { marker.createNewFile() } catch (_: Exception) {}
     }
 
     private fun createSymlinkOrCopy(linkFile: File, targetName: String, fallbackFile: File) {

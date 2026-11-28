@@ -225,6 +225,21 @@ public final class TerminalSession extends TerminalOutput {
         mClient.onTextChanged(this);
     }
 
+    /**
+     * Directly append text to the terminal emulator screen.
+     * Useful for boot/setup logs, banners and system diagnostic messages.
+     */
+    public void writeToTerminal(String text) {
+        if (text == null) return;
+        mMainThreadHandler.post(() -> {
+            if (mEmulator != null) {
+                byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
+                mEmulator.append(bytes, bytes.length);
+                notifyScreenUpdate();
+            }
+        });
+    }
+
     /** Reset state for terminal emulator state. */
     public void reset() {
         mEmulator.reset();

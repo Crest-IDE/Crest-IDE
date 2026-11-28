@@ -421,23 +421,21 @@ fun TerminalScreen(
                                 currentSession = session
                                 val client = TerminalSessionManager.activeClient
                                 clientRef = client
-                                view.post {
-                                    if (client == null) {
-                                        android.util.Log.e(
-                                            "TerminalScreen",
-                                            "Cannot attach terminal session: TerminalViewClient is null"
-                                        )
-                                        postStatus("Terminal Client Initialization Failed")
-                                        return@post
-                                    }
-
-                                    client.terminalView = view
-                                    view.setTerminalViewClient(client)
-                                    view.attachSession(session)
-
-                                    view.requestFocus()
-                                    showKeyboard()
+                                if (client == null) {
+                                    android.util.Log.e(
+                                        "TerminalScreen",
+                                        "Cannot attach terminal session: TerminalViewClient is null"
+                                    )
+                                    postStatus("Terminal Client Initialization Failed")
+                                    return@post
                                 }
+
+                                client.terminalView = view
+                                view.setTerminalViewClient(client)
+                                view.attachSession(session)
+
+                                view.requestFocus()
+                                showKeyboard()
                             }
                         }
                     )

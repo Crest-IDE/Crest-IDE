@@ -47,30 +47,34 @@ object TerminalSessionManager {
         thread {
             try {
                 val rootfsManager = RootfsManager(context)
-                val ready = rootfsManager.setupRootfsEnvironment { status ->
-                    onStatusUpdate(status)
-                }
-
-                if (ready) {
-                    val client = NativeTerminalClient(context, onSessionFinishedCallback = {
-                        activeSession = null
-                        activeClient = null
-                        onStatusUpdate("Void Linux Process Terminated")
-                    }).apply {
-                        onModifiersChanged = this@TerminalSessionManager.onModifiersChanged
-                    }
-                    val session = rootfsManager.createTerminalSession(client, initialPath)
-
-                    activeClient = client
-                    activeSession = session
-                    isInitializing = false
-
-                    onStatusUpdate("Void Linux Active")
-                    onSessionReady(session)
+                if (rootfsManager.isInstalled) {
+                    onStatusUpdate("Starting Terminal...")
                 } else {
-                    isInitializing = false
-                    onStatusUpdate("Void Linux Setup Failed")
+                    val ready = rootfsManager.setupRootfsEnvironment { status ->
+                        onStatusUpdate(status)
+                    }
+                    if (!ready) {
+                        isInitializing = false
+                        onStatusUpdate("Void Linux Setup Failed")
+                        return@thread
+                    }
                 }
+
+                val client = NativeTerminalClient(context, onSessionFinishedCallback = {
+                    activeSession = null
+                    activeClient = null
+                    onStatusUpdate("Void Linux Process Terminated")
+                }).apply {
+                    onModifiersChanged = this@TerminalSessionManager.onModifiersChanged
+                }
+                val session = rootfsManager.createTerminalSession(client, initialPath)
+
+                activeClient = client
+                activeSession = session
+                isInitializing = false
+
+                onStatusUpdate("Void Linux Active")
+                onSessionReady(session)
             } catch (e: Exception) {
                 isInitializing = false
                 Log.e(TAG, "Error initializing terminal session", e)

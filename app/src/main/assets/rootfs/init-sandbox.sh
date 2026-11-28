@@ -1,17 +1,20 @@
 #!/system/bin/sh
 export LD_LIBRARY_PATH=$PREFIX
 
-# Clean prefix: map /data/user/0/ to clean /data/data/
-DATA_DATA_PREFIX=$(echo "$PREFIX" | sed 's|^/data/user/0/|/data/data/|')
+# Clean prefix: map /data/user/0/ to clean /data/data/ without forking sed
+DATA_DATA_PREFIX="$PREFIX"
+case "$PREFIX" in
+    /data/user/0/*)
+        DATA_DATA_PREFIX="/data/data/${PREFIX#/data/user/0/}"
+        ;;
+esac
 
 ROOTFS_DIR="$PREFIX/rootfs"
 
-mkdir -p "$PREFIX/tmp"
-chmod 700 "$PREFIX/tmp" 2>/dev/null || true
+[ -d "$PREFIX/tmp" ] || mkdir -p "$PREFIX/tmp"
 export TMPDIR="$PREFIX/tmp"
-mkdir -p "$ROOTFS_DIR/tmp"
-mkdir -p "$ROOTFS_DIR/tmp/shm"
-mkdir -p "$PREFIX/public"
+[ -d "$ROOTFS_DIR/tmp/shm" ] || mkdir -p "$ROOTFS_DIR/tmp/shm"
+[ -d "$PREFIX/public" ] || mkdir -p "$PREFIX/public"
 
 # Ensure clean /data/data and /data/user/0 hierarchy exists inside rootfs
 mkdir -p "$ROOTFS_DIR/data/data/com.crestide"
@@ -47,7 +50,7 @@ elif [ -f "$PREFIX/libcrest-chroot.so" ]; then
 fi
 
 if [ -z "$CREST_CHROOT" ]; then
-    echo "[CrestEditor] Fatal: crest-chroot binary not found in $NATIVE_DIR or $PREFIX" >&2
+    echo "[Crest-IDE] Fatal: crest-chroot binary not found in $NATIVE_DIR or $PREFIX" >&2
     exit 1
 fi
 
@@ -58,8 +61,7 @@ CHROOT_ARGS="-u -l"
 # Bind host system mounts if they exist
 for system_mnt in /apex /odm /product /system /system_ext /vendor /linkerconfig/ld.config.txt; do
     if [ -e "$system_mnt" ]; then
-        resolved=$(readlink -f "$system_mnt" 2>/dev/null || echo "$system_mnt")
-        CHROOT_ARGS="$CHROOT_ARGS -b ${resolved}:${system_mnt}"
+        CHROOT_ARGS="$CHROOT_ARGS -b ${system_mnt}:${system_mnt}"
     fi
 done
 
