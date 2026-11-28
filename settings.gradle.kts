@@ -19,7 +19,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "CrestEditor"
+rootProject.name = "Crest-IDE"
 include(":app")
 include(":terminal-emulator")
 include(":terminal-view")

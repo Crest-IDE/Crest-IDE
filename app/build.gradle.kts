@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.cresteditor"
+    namespace = "com.crestide"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.cresteditor"
+        applicationId = "com.crestide"
         minSdk = 26
         targetSdk = 34
         versionCode = 2
