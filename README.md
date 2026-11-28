@@ -34,44 +34,6 @@ This project aims to make coding on Android feel less like a compromise and more
 - Settings screen inspired by VS Code preferences
 - Auto-save and dirty state tracking for editing reliability
 
-### VS Code-style configuration
-- JSON-based settings management
-- Reactive configuration updates
-- A familiar editor experience for users coming from desktop IDEs
-
-## Architecture
-
-```text
-Crest-IDE Android Shell
-    |
-    +-- Jetpack Compose UI
-    |   +-- Tabs and workspace explorer
-    |   +-- Settings and preferences
-    |   +-- Terminal and developer tools
-    |
-    +-- Monaco Editor Core
-    |   +-- Syntax highlighting and editing
-    |   +-- Mobile-focused interactions
-    |
-    +-- Runtime and Sandbox Layer
-        +-- Linux environment via PRoot
-        +-- Terminal session management
-        +-- File system and project access
-
-    +-- Core Management Layer
-        +-- Settings manager
-        +-- Workspace manager
-        +-- Process and terminal bridge
-```
-
-## Requirements
-
-- Android SDK with compile support for SDK 34
-- Minimum Android SDK: 26
-- JDK 17 or newer
-- Node.js 18+ for editor-core build steps
-- Arm64 target support for native runtime components
-
 ## License
 
 This project is licensed under the GNU General Public License v3.0 (GPL-3.0). See the `LICENSE` file for more information.
