@@ -82,9 +82,11 @@ class MainViewModel : ViewModel() {
             val rootItems = WorkspaceManager.listRootFiles(workspaceDir, filesExclude)
             _fileTreeItems.value = rootItems
 
-            // 2. Open first file immediately without waiting for recursive subfolder scan
+            // 2. Open first valid code file immediately (skips large files and binaries)
             if (_openTabs.value.isEmpty()) {
-                val firstFile = rootItems.firstOrNull { !it.isDirectory }
+                val firstFile = rootItems.firstOrNull { item ->
+                    !item.isDirectory && WorkspaceManager.isCandidateAutoOpenFile(File(item.path))
+                }
                 firstFile?.let { item ->
                     openFile(File(item.path), webView)
                 }
@@ -226,8 +228,13 @@ class MainViewModel : ViewModel() {
             val currentTabs = _openTabs.value
             val existingTab = currentTabs.find { it.id == path }
 
-            // Read content on background thread (cached/baseline)
+            // Read content on background thread (safely handles large/binary files)
             val readResult = WorkspaceManager.readFileContent(file)
+            if (readResult.isFailure) {
+                val errorMsg = readResult.exceptionOrNull()?.message ?: "Could not open ${file.name}"
+                _toastMessage.value = errorMsg
+                return@launch
+            }
             val content = readResult.getOrDefault("")
 
             lastSavedContentHashes[path] = content.hashCode()

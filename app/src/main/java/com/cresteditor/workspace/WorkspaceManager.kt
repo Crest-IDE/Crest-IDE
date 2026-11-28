@@ -218,13 +218,60 @@ h1 {
         }
     }
 
+    const val MAX_FILE_SIZE_BYTES = 5L * 1024 * 1024 // 5 MB
+
+    fun isBinaryFile(file: File): Boolean {
+        if (!file.exists() || !file.isFile || file.length() == 0L) return false
+        return try {
+            file.inputStream().use { stream ->
+                val buffer = ByteArray(512)
+                val bytesRead = stream.read(buffer)
+                if (bytesRead <= 0) return false
+                // Check ELF header (Linux executable / library)
+                if (bytesRead >= 4 && buffer[0] == 0x7F.toByte() && buffer[1] == 'E'.code.toByte() && buffer[2] == 'L'.code.toByte() && buffer[3] == 'F'.code.toByte()) {
+                    return true
+                }
+                // Check for null bytes in initial sample
+                for (i in 0 until bytesRead) {
+                    if (buffer[i] == 0.toByte()) {
+                        return true
+                    }
+                }
+                false
+            }
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun isCandidateAutoOpenFile(file: File): Boolean {
+        if (!file.exists() || !file.isFile || file.length() == 0L || file.length() > 2L * 1024 * 1024) return false
+        val name = file.name
+        if (!name.contains('.')) return false
+        val ext = name.substringAfterLast('.', "").lowercase()
+        val knownCodeExts = setOf(
+            "html", "htm", "js", "ts", "jsx", "tsx", "css", "json", "md",
+            "txt", "py", "kt", "java", "c", "cpp", "h", "rs", "go",
+            "xml", "yaml", "yml", "sh", "sql", "zig", "lua"
+        )
+        return knownCodeExts.contains(ext) && !isBinaryFile(file)
+    }
+
     suspend fun readFileContent(file: File): Result<String> = withContext(Dispatchers.IO) {
         try {
-            if (file.exists() && file.isFile) {
-                Result.success(file.readText())
-            } else {
-                Result.failure(IllegalArgumentException("File does not exist or is not a file: ${file.path}"))
+            if (!file.exists() || !file.isFile) {
+                return@withContext Result.failure(IllegalArgumentException("File does not exist or is not a file: ${file.path}"))
             }
+            if (file.length() > MAX_FILE_SIZE_BYTES) {
+                val sizeMb = file.length() / (1024 * 1024)
+                return@withContext Result.failure(IllegalArgumentException("File is too large (${sizeMb}MB). Crest Editor limit is 5MB."))
+            }
+            if (isBinaryFile(file)) {
+                return@withContext Result.failure(IllegalArgumentException("Cannot open binary or executable file: ${file.name}"))
+            }
+            Result.success(file.readText())
+        } catch (e: OutOfMemoryError) {
+            Result.failure(IllegalStateException("Out of memory reading ${file.name}"))
         } catch (e: Exception) {
             Result.failure(e)
         }
