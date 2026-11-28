@@ -77,20 +77,27 @@ class MainViewModel : ViewModel() {
                 emptyMap()
             }
 
-            // Index project files asynchronously in background without blocking editor launch
-            launch {
-                projectFileIndex.indexWorkspace(workspaceDir, effectiveSearchExcludes, gitignoreMatcher)
-            }
+            // 1. FAST-PATH: Emit root-level items immediately (< 2ms)
+            // File drawer shows files instantly with ZERO startup delay!
+            val rootItems = WorkspaceManager.listRootFiles(workspaceDir, filesExclude)
+            _fileTreeItems.value = rootItems
 
-            val items = WorkspaceManager.listFilesRecursively(workspaceDir, 0, filesExclude, workspaceDir)
-            _fileTreeItems.value = items
-
+            // 2. Open first file immediately without waiting for recursive subfolder scan
             if (_openTabs.value.isEmpty()) {
-                val firstFile = items.firstOrNull { !it.isDirectory }
+                val firstFile = rootItems.firstOrNull { !it.isDirectory }
                 firstFile?.let { item ->
                     openFile(File(item.path), webView)
                 }
             }
+
+            // 3. BACKGROUND PATH: Index project files asynchronously in background
+            launch {
+                projectFileIndex.indexWorkspace(workspaceDir, effectiveSearchExcludes, gitignoreMatcher)
+            }
+
+            // 4. Background recursive tree loading for subfolders
+            val fullItems = WorkspaceManager.listFilesRecursively(workspaceDir, 0, filesExclude, workspaceDir)
+            _fileTreeItems.value = fullItems
         }
     }
 
@@ -198,6 +205,10 @@ class MainViewModel : ViewModel() {
                 emptyMap()
             }
 
+            // Fast-path: update root items first
+            val rootItems = WorkspaceManager.listRootFiles(workspaceDir, filesExclude)
+            _fileTreeItems.value = rootItems
+
             launch {
                 projectFileIndex.indexWorkspace(workspaceDir, effectiveSearchExcludes, gitignoreMatcher)
             }
@@ -215,23 +226,22 @@ class MainViewModel : ViewModel() {
             val currentTabs = _openTabs.value
             val existingTab = currentTabs.find { it.id == path }
 
-            if (existingTab != null) {
-                // Tab is ALREADY OPEN: switch to in-memory model without reading or overwriting from disk
-                _activeTabId.value = path
-                _activeLanguage.value = language
-                withContext(Dispatchers.Main) {
-                    MythicBridge.openFile(webView, path, null, language, existingTab.isModified)
-                }
-                return@launch
-            }
-
-            // Fresh file open: read content from disk on background thread
+            // Read content on background thread (cached/baseline)
             val readResult = WorkspaceManager.readFileContent(file)
             val content = readResult.getOrDefault("")
 
-            // Cache baseline for self-save echo suppression and sync comparisons
             lastSavedContentHashes[path] = content.hashCode()
             lastSavedTimestamps[path] = file.lastModified()
+
+            if (existingTab != null) {
+                // Tab is ALREADY OPEN: switch active focus and ensure model has content if not loaded yet
+                _activeTabId.value = path
+                _activeLanguage.value = language
+                withContext(Dispatchers.Main) {
+                    MythicBridge.openFile(webView, path, content, language, existingTab.isModified)
+                }
+                return@launch
+            }
 
             _openTabs.value = currentTabs + CrestTabItem(id = path, title = file.name, isModified = false)
             _activeTabId.value = path

@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import com.cresteditor.core.model.FileTypeRegistry
-import com.cresteditor.icons.Codicons
+import com.cresteditor.icons.CrestIcons
 import com.cresteditor.workspace.WorkspaceManager
 import java.io.File
 
@@ -96,7 +96,7 @@ fun InlineTreeInputRow(
             ) {
                 if (isFolder) {
                     Icon(
-                        imageVector = Codicons.ChevronRight,
+                        imageVector = CrestIcons.ChevronRight,
                         contentDescription = null,
                         tint = DrawerTheme.ActivityBarInactive,
                         modifier = Modifier.size(17.dp)

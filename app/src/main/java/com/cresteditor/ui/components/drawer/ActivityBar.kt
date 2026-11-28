@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.cresteditor.icons.Codicons
+import com.cresteditor.icons.CrestIcons
 import com.cresteditor.ui.components.SideBarView
 
 /**
@@ -84,7 +84,7 @@ fun ActivityBar(
 
         // Explorer Item
         ActivityBarItem(
-            icon = Codicons.Files,
+            icon = CrestIcons.Files,
             contentDescription = "Explorer",
             isSelected = activeView == SideBarView.EXPLORER,
             onClick = { onViewSelect(SideBarView.EXPLORER) }
@@ -92,7 +92,7 @@ fun ActivityBar(
 
         // Search Item
         ActivityBarItem(
-            icon = Codicons.Search,
+            icon = CrestIcons.Search,
             contentDescription = "Search",
             isSelected = activeView == SideBarView.SEARCH,
             onClick = { onViewSelect(SideBarView.SEARCH) }
@@ -100,7 +100,7 @@ fun ActivityBar(
 
         // Source Control (Git) Item
         ActivityBarItem(
-            icon = Codicons.SourceControl,
+            icon = CrestIcons.SourceControl,
             contentDescription = "Source Control",
             isSelected = activeView == SideBarView.SOURCE_CONTROL,
             onClick = { onViewSelect(SideBarView.SOURCE_CONTROL) }
@@ -108,7 +108,7 @@ fun ActivityBar(
 
         // Terminal Launcher
         ActivityBarItem(
-            icon = Codicons.Terminal,
+            icon = CrestIcons.Terminal,
             contentDescription = "Terminal",
             isSelected = false,
             onClick = onTerminalClick
@@ -118,7 +118,7 @@ fun ActivityBar(
 
         // Settings (Gear) at bottom
         ActivityBarItem(
-            icon = Codicons.SettingsGear,
+            icon = CrestIcons.SettingsGear,
             contentDescription = "Settings",
             isSelected = false,
             onClick = onSettingsClick

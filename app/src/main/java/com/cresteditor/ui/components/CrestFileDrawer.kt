@@ -29,12 +29,12 @@ data class FileTreeItem(
 
 /**
  * Helper to get extension-based file icons and colors (Seti theme style).
- * Preserved for internal compatibility with VSCodeCommandPalette and drawer panes.
+ * Preserved for internal compatibility with CommandPalette and drawer panes.
  */
 internal fun getFileIcon(filename: String): Pair<ImageVector, Color> = FileTypeRegistry.getFileIcon(filename)
 
 /**
- * Pixel-perfect VS Code Left Side Bar for Crest-Editor.
+ * Pixel-perfect Left Side Bar for Crest-Editor.
  * Modular container composing:
  * 1. Activity Bar (48dp dock on left)
  * 2. Primary Side Bar Pane (Explorer, Search, or Source Control)

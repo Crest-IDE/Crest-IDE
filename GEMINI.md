@@ -88,10 +88,10 @@ Crest-Editor
   - Reserve `Crest...` strictly for root-level brand entities (like `CrestTheme`, `CrestEditorApp`, `CrestFileDrawer`). Follow the clean conventions of Zed and VS Code.
 - **Single Responsibility**: Keep component files focused, typically under 150–200 lines, with clean parameter contracts and zero hidden side effects.
 
-### 🎨 Icon Usage Standards (STRICT: Use In-House Codicons)
-- **Always Use In-House Source Icons**: Always use the project's pre-existing, official in-house icon pack: `com.cresteditor.icons.Codicons` (based on `@vscode/codicons`). It contains over 5,800+ lines of official VS Code vector icons (e.g., `Codicons.Menu`, `Codicons.ArrowLeft`, `Codicons.ArrowRight`, `Codicons.Search`, `Codicons.ChevronDown`, `Codicons.KebabVertical`, `Codicons.Save`, `Codicons.SettingsGear`, `Codicons.Files`, `Codicons.Terminal`, etc.).
-- **NO Third-Party Icon Packs**: NEVER introduce or import external third-party icon libraries or packs. Always check and use `Codicons` first.
-- **Avoid Random Material Icons**: Do NOT use random Android Material icons (`androidx.compose.material.icons.Icons.Default.*`) when an authentic VS Code icon exists in `com.cresteditor.icons.Codicons`.
+### 🎨 Icon Usage Standards (STRICT: Use In-House CrestIcons)
+- **Always Use In-House Source Icons**: Always use the project's official in-house icon pack: `com.cresteditor.icons.CrestIcons` (based on Zed Editor & Lucide minimal 16x16 stroke vectors). It contains clean, stroke-based vector icons (e.g., `CrestIcons.Menu`, `CrestIcons.ArrowLeft`, `CrestIcons.ArrowRight`, `CrestIcons.Search`, `CrestIcons.ChevronDown`, `CrestIcons.KebabVertical`, `CrestIcons.Save`, `CrestIcons.SettingsGear`, `CrestIcons.Files`, `CrestIcons.Terminal`, etc.).
+- **NO Third-Party Icon Packs**: NEVER introduce or import external third-party icon libraries or packs. Always check and use `CrestIcons` first.
+- **Avoid Random Material Icons**: Do NOT use random Android Material icons (`androidx.compose.material.icons.Icons.Default.*`) when an authentic editor icon exists in `com.cresteditor.icons.CrestIcons`.
 
 ### Editor Core (TypeScript / Vite)
 - **Mobile Touch First**: Monaco was designed for desktop; all changes must preserve touch selection handles, context menus, and mobile virtual keyboard (IME) compatibility.

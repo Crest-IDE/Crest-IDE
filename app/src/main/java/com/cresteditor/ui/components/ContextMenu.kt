@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 // =============================================================================
-// VS CODE CONTEXT MENU TOKENS (Mobile Adapted, Compact & Sleek)
+// CONTEXT MENU TOKENS (Mobile Adapted, Compact & Sleek)
 // =============================================================================
 private val MenuBackground = Color(0xFF1F1F1F)          // menu.background
 private val MenuBorder = Color(0xFF383838)              // menu.border
@@ -36,7 +36,7 @@ private val MenuDanger = Color(0xFFF14C4C)              // error / destructive
 private val MenuAccent = Color(0xFF007ACC)              // primary accent / check
 
 /**
- * Common VS Code Styled Popup / Dropdown Menu for Crest-Editor.
+ * Common Styled Popup / Context Dropdown Menu for Crest-Editor.
  * Features:
  * - Compact mobile width (no wide PC shortcuts clutter)
  * - Exact 1px dark border (#383838) and #1F1F1F slate background
@@ -44,7 +44,7 @@ private val MenuAccent = Color(0xFF007ACC)              // primary accent / chec
  * - Auto height constraints to prevent screen overflow
  */
 @Composable
-fun VSCodeDropdownMenu(
+fun ContextMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
@@ -66,10 +66,10 @@ fun VSCodeDropdownMenu(
 }
 
 /**
- * Individual Menu Item inside a VSCodeDropdownMenu.
+ * Individual Menu Item inside a ContextMenu.
  */
 @Composable
-fun VSCodeMenuItem(
+fun ContextMenuItem(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -164,7 +164,7 @@ fun VSCodeMenuItem(
  * Clean 1px divider for separating action groups in the menu.
  */
 @Composable
-fun VSCodeMenuSeparator(
+fun ContextMenuSeparator(
     modifier: Modifier = Modifier
 ) {
     HorizontalDivider(

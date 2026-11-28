@@ -57,21 +57,21 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
-private val VSCodeQuickInputBg = Color(0xFF252526)
-private val VSCodeQuickInputBorder = Color(0xFF3C3C3C)
-private val VSCodeInputBoxBg = Color(0xFF313131)
-private val VSCodeFocusBorder = Color(0xFF007ACC)
-private val VSCodeListSelectionBg = Color(0xFF04395E)
-private val VSCodeCategoryHeader = Color(0xFF3794FF)
-private val VSCodeTextPrimary = Color(0xFFCCCCCC)
-private val VSCodeTextActive = Color(0xFFFFFFFF)
-private val VSCodeShortcut = Color(0xFF858585)
-private val VSCodeHighlight = Color(0xFF3794FF)
-private val VSCodeDescription = Color(0xFF969696)
-private val VSCodeDirtyDot = Color(0xFFE2C08D)
+private val QuickInputBg = Color(0xFF252526)
+private val QuickInputBorder = Color(0xFF3C3C3C)
+private val InputBoxBg = Color(0xFF313131)
+private val FocusBorder = Color(0xFF007ACC)
+private val ListSelectionBg = Color(0xFF04395E)
+private val CategoryHeader = Color(0xFF3794FF)
+private val TextPrimary = Color(0xFFCCCCCC)
+private val TextActive = Color(0xFFFFFFFF)
+private val ShortcutColor = Color(0xFF858585)
+private val HighlightColor = Color(0xFF3794FF)
+private val DescriptionColor = Color(0xFF969696)
+private val DirtyDotColor = Color(0xFFE2C08D)
 
 /**
- * Pixel-Perfect Multi-Mode VS Code Quick Open / Command Palette Modal for Crest-Editor.
+ * Pixel-Perfect Multi-Mode Quick Open / Command Palette Modal for Crest-Editor.
  * Supports:
  * - Empty / Query: File Search (Quick Open) + Open Editors (Ctrl+P)
  * - `>`: Show and Run Commands (F1 / Ctrl+Shift+P)
@@ -80,7 +80,7 @@ private val VSCodeDirtyDot = Color(0xFFE2C08D)
  * - `view `: Open View
  */
 @Composable
-fun VSCodeCommandPalette(
+fun CommandPalette(
     initialQuery: String = ">",
     commandRegistry: CommandRegistry,
     fileTreeItems: List<FileTreeItem> = emptyList(),
@@ -362,8 +362,8 @@ fun VSCodeCommandPalette(
                         spotColor = Color(0x80000000),
                         ambientColor = Color(0x80000000)
                     )
-                    .background(VSCodeQuickInputBg, RoundedCornerShape(6.dp))
-                    .border(1.dp, VSCodeQuickInputBorder, RoundedCornerShape(6.dp))
+                    .background(QuickInputBg, RoundedCornerShape(6.dp))
+                    .border(1.dp, QuickInputBorder, RoundedCornerShape(6.dp))
             ) {
                 // =============================================================
                 // 1. INPUT BOX (VS Code QuickInput styling)
@@ -373,8 +373,8 @@ fun VSCodeCommandPalette(
                         .fillMaxWidth()
                         .padding(horizontal = 8.dp, vertical = 7.dp)
                         .height(34.dp)
-                        .background(VSCodeInputBoxBg, RoundedCornerShape(3.dp))
-                        .border(1.dp, VSCodeFocusBorder, RoundedCornerShape(3.dp))
+                        .background(InputBoxBg, RoundedCornerShape(3.dp))
+                        .border(1.dp, FocusBorder, RoundedCornerShape(3.dp))
                         .padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -383,7 +383,7 @@ fun VSCodeCommandPalette(
                         QuickAccessMode.COMMANDS -> {
                             Text(
                                 text = ">",
-                                color = VSCodeCategoryHeader,
+                                color = CategoryHeader,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(end = 6.dp)
@@ -392,7 +392,7 @@ fun VSCodeCommandPalette(
                         QuickAccessMode.GOTO_LINE -> {
                             Text(
                                 text = ":",
-                                color = VSCodeCategoryHeader,
+                                color = CategoryHeader,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(end = 6.dp)
@@ -401,7 +401,7 @@ fun VSCodeCommandPalette(
                         QuickAccessMode.HELP -> {
                             Text(
                                 text = "?",
-                                color = VSCodeCategoryHeader,
+                                color = CategoryHeader,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(end = 6.dp)
@@ -410,7 +410,7 @@ fun VSCodeCommandPalette(
                         QuickAccessMode.VIEW -> {
                             Text(
                                 text = "view",
-                                color = VSCodeCategoryHeader,
+                                color = CategoryHeader,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.padding(end = 6.dp)
@@ -425,7 +425,7 @@ fun VSCodeCommandPalette(
                         if (rawQuery.isEmpty()) {
                             Text(
                                 text = mode.placeholder,
-                                color = VSCodeShortcut,
+                                color = ShortcutColor,
                                 fontSize = 13.sp,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
@@ -473,11 +473,11 @@ fun VSCodeCommandPalette(
                                 },
                             singleLine = true,
                             textStyle = TextStyle(
-                                color = VSCodeTextActive,
+                                color = TextActive,
                                 fontSize = 13.sp,
                                 fontFamily = FontFamily.Default
                             ),
-                            cursorBrush = SolidColor(VSCodeFocusBorder)
+                            cursorBrush = SolidColor(FocusBorder)
                         )
                     }
 
@@ -491,7 +491,7 @@ fun VSCodeCommandPalette(
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Clear",
-                                tint = VSCodeShortcut,
+                                tint = ShortcutColor,
                                 modifier = Modifier.size(13.dp)
                             )
                         }
@@ -499,7 +499,7 @@ fun VSCodeCommandPalette(
                 }
 
                 // Separator line under input
-                Divider(color = VSCodeQuickInputBorder, thickness = 1.dp)
+                Divider(color = QuickInputBorder, thickness = 1.dp)
 
                 // =============================================================
                 // 2. RESULTS LIST
@@ -519,7 +519,7 @@ fun VSCodeCommandPalette(
                                 QuickAccessMode.VIEW -> "No matching views found"
                                 QuickAccessMode.HELP -> "No help entries available"
                             },
-                            color = VSCodeShortcut,
+                            color = ShortcutColor,
                             fontSize = 12.5.sp
                         )
                     }
@@ -550,7 +550,7 @@ fun VSCodeCommandPalette(
                                     ) {
                                         Text(
                                             text = entry.title,
-                                            color = VSCodeCategoryHeader,
+                                            color = CategoryHeader,
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.Bold
                                         )
@@ -571,7 +571,7 @@ fun VSCodeCommandPalette(
                                             .fillMaxWidth()
                                             .height(34.dp)
                                             .background(
-                                                if (isSelected) VSCodeListSelectionBg else Color.Transparent,
+                                                if (isSelected) ListSelectionBg else Color.Transparent,
                                                 RoundedCornerShape(3.dp)
                                             )
                                             .clickable {
@@ -597,7 +597,7 @@ fun VSCodeCommandPalette(
                                                 Icon(
                                                     imageVector = Icons.Default.Code,
                                                     contentDescription = null,
-                                                    tint = if (isSelected) VSCodeTextActive else VSCodeShortcut,
+                                                    tint = if (isSelected) TextActive else ShortcutColor,
                                                     modifier = Modifier
                                                         .size(15.dp)
                                                         .padding(end = 6.dp)
@@ -606,7 +606,7 @@ fun VSCodeCommandPalette(
                                             QuickPickIcon.GOTO_LINE -> {
                                                 Text(
                                                     text = "#",
-                                                    color = VSCodeHighlight,
+                                                    color = HighlightColor,
                                                     fontSize = 13.sp,
                                                     fontWeight = FontWeight.Bold,
                                                     modifier = Modifier.padding(end = 6.dp)
@@ -616,7 +616,7 @@ fun VSCodeCommandPalette(
                                                 Icon(
                                                     imageVector = Icons.Default.ViewQuilt,
                                                     contentDescription = null,
-                                                    tint = if (isSelected) VSCodeTextActive else VSCodeShortcut,
+                                                    tint = if (isSelected) TextActive else ShortcutColor,
                                                     modifier = Modifier
                                                         .size(15.dp)
                                                         .padding(end = 6.dp)
@@ -626,7 +626,7 @@ fun VSCodeCommandPalette(
                                                 Icon(
                                                     imageVector = Icons.Default.HelpOutline,
                                                     contentDescription = null,
-                                                    tint = if (isSelected) VSCodeTextActive else VSCodeShortcut,
+                                                    tint = if (isSelected) TextActive else ShortcutColor,
                                                     modifier = Modifier
                                                         .size(15.dp)
                                                         .padding(end = 6.dp)
@@ -653,7 +653,7 @@ fun VSCodeCommandPalette(
                                             Spacer(modifier = Modifier.width(8.dp))
                                             Text(
                                                 text = desc,
-                                                color = if (isSelected) VSCodeTextActive.copy(alpha = 0.8f) else VSCodeDescription,
+                                                color = if (isSelected) TextActive.copy(alpha = 0.8f) else DescriptionColor,
                                                 fontSize = 11.5.sp,
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis,
@@ -667,7 +667,7 @@ fun VSCodeCommandPalette(
                                         if (entry.isModified) {
                                             Text(
                                                 text = "●",
-                                                color = VSCodeDirtyDot,
+                                                color = DirtyDotColor,
                                                 fontSize = 11.sp,
                                                 modifier = Modifier.padding(end = 6.dp)
                                             )
@@ -677,7 +677,7 @@ fun VSCodeCommandPalette(
                                         entry.shortcut?.let { shortcut ->
                                             Text(
                                                 text = shortcut,
-                                                color = if (isSelected) VSCodeTextActive else VSCodeShortcut,
+                                                color = if (isSelected) TextActive else ShortcutColor,
                                                 fontSize = 11.sp,
                                                 fontFamily = FontFamily.Monospace,
                                                 fontWeight = FontWeight.Medium
@@ -1096,7 +1096,7 @@ private fun formatHighlightedText(
         return buildAnnotatedString {
             withStyle(
                 SpanStyle(
-                    color = if (isSelected) VSCodeTextActive else VSCodeTextPrimary,
+                    color = if (isSelected) TextActive else TextPrimary,
                     fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal
                 )
             ) {
@@ -1111,7 +1111,7 @@ private fun formatHighlightedText(
             if (matchSet.contains(i)) {
                 withStyle(
                     SpanStyle(
-                        color = VSCodeHighlight,
+                        color = HighlightColor,
                         fontWeight = FontWeight.Bold
                     )
                 ) {
@@ -1120,7 +1120,7 @@ private fun formatHighlightedText(
             } else {
                 withStyle(
                     SpanStyle(
-                        color = if (isSelected) VSCodeTextActive else VSCodeTextPrimary,
+                        color = if (isSelected) TextActive else TextPrimary,
                         fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal
                     )
                 ) {

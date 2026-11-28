@@ -26,6 +26,9 @@ class MythicBridge(
     private var webView: WebView? = null
 
     fun setWebView(wv: WebView?) {
+        if (this.webView != wv) {
+            isEditorReady = false
+        }
         this.webView = wv
         activeWebView = WeakReference(wv)
     }
@@ -72,7 +75,12 @@ class MythicBridge(
     @JavascriptInterface
     fun onEditorReady(infoJson: String) {
         Log.i(TAG, "Mythic Editor READY: $infoJson")
+        isEditorReady = true
         webView?.post {
+            pendingOpenFile?.let { pending ->
+                pendingOpenFile = null
+                openFile(webView, pending.path, pending.content, pending.languageId, pending.isModified)
+            }
             onReadyCallback?.invoke()
         }
     }
@@ -103,10 +111,27 @@ class MythicBridge(
     companion object {
         private var activeWebView: WeakReference<WebView>? = null
 
+        @Volatile
+        var isEditorReady: Boolean = false
+            internal set
+
+        @Volatile
+        private var pendingOpenFile: PendingFile? = null
+
+        data class PendingFile(
+            val path: String,
+            val content: String?,
+            val languageId: String,
+            val isModified: Boolean
+        )
+
         fun getActiveWebView(): WebView? = activeWebView?.get()
 
         fun openFile(webView: WebView?, path: String, content: String?, languageId: String, isModified: Boolean = false) {
             val target = webView ?: activeWebView?.get()
+            if (!isEditorReady || target == null) {
+                pendingOpenFile = PendingFile(path, content, languageId, isModified)
+            }
             target?.let { wv ->
                 wv.post {
                     val contentArg = if (content != null) JSONObject.quote(content) else "null"

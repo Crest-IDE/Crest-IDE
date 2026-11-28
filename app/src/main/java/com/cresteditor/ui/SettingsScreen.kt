@@ -43,7 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.cresteditor.ui.components.PatternListSetting
-import com.cresteditor.ui.components.VSCodeDialog
+import com.cresteditor.ui.components.ModalDialog
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,20 +56,20 @@ import org.json.JSONObject
 // =============================================================================
 // VS CODE THEME TOKENS (Direct 1:1 match with VS Code Preferences Editor)
 // =============================================================================
-private val VSCodeBg = Color(0xFF1E1E1E)                   // editor.background
-private val VSCodeHeaderBg = Color(0xFF252526)             // titlebar / sideBar.background
-private val VSCodeInputBg = Color(0xFF313131)              // settings.textInputBackground
-private val VSCodeInputBorder = Color(0xFF3C3C3C)          // settings.textInputBorder
-private val VSCodeFocusBorder = Color(0xFF007ACC)          // focusBorder
-private val VSCodeModifiedIndicator = Color(0xFF007ACC)    // settings.modifiedItemIndicator
-private val VSCodeForeground = Color(0xFFCCCCCC)           // editor.foreground
-private val VSCodeHeaderForeground = Color(0xFFE7E7E7)     // settings.headerForeground
-private val VSCodeDescription = Color(0xFF9D9D9D)          // descriptionForeground
-private val VSCodeRowDivider = Color(0xFF282828)           // settings.rowBorder
-private val VSCodeBadgeBg = Color(0xFF2D2D2D)              // badge.background
-private val VSCodeBadgeFg = Color(0xFF858585)              // badge.foreground
-private val VSCodeErrorFg = Color(0xFFF14C4C)              // errorForeground
-private val VSCodeLinkFg = Color(0xFF3794FF)               // textLink.foreground
+private val SettingsBg = Color(0xFF1E1E1E)                   // editor.background
+private val SettingsHeaderBg = Color(0xFF252526)             // titlebar / sideBar.background
+private val SettingsInputBg = Color(0xFF313131)              // settings.textInputBackground
+private val SettingsInputBorder = Color(0xFF3C3C3C)          // settings.textInputBorder
+private val SettingsFocusBorder = Color(0xFF007ACC)          // focusBorder
+private val SettingsModifiedIndicator = Color(0xFF007ACC)    // settings.modifiedItemIndicator
+private val SettingsForeground = Color(0xFFCCCCCC)           // editor.foreground
+private val SettingsHeaderForeground = Color(0xFFE7E7E7)     // settings.headerForeground
+private val SettingsDescription = Color(0xFF9D9D9D)          // descriptionForeground
+private val SettingsRowDivider = Color(0xFF282828)           // settings.rowBorder
+private val SettingsBadgeBg = Color(0xFF2D2D2D)              // badge.background
+private val SettingsBadgeFg = Color(0xFF858585)              // badge.foreground
+private val SettingsErrorFg = Color(0xFFF14C4C)              // errorForeground
+private val SettingsLinkFg = Color(0xFF3794FF)               // textLink.foreground
 
 /**
  * Pixel-perfect VS Code Settings UI for CrestEditor.
@@ -128,7 +128,7 @@ fun SettingsScreen(
 
     if (isJsonMode) {
         // VS Code settings.json Editor View
-        VSCodeJsonEditorView(
+        JsonEditorView(
             settingsManager = settingsManager,
             onCloseJson = { isJsonMode = false },
             onSaveSuccess = {
@@ -142,7 +142,7 @@ fun SettingsScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(VSCodeBg)
+            .background(SettingsBg)
             .navigationBarsPadding()
             .imePadding()
             .nestedScroll(nestedScrollConnection)
@@ -159,7 +159,7 @@ fun SettingsScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(VSCodeHeaderBg)
+                .background(SettingsHeaderBg)
                 .statusBarsPadding()
         ) {
             Row(
@@ -175,7 +175,7 @@ fun SettingsScreen(
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back to Editor",
-                        tint = VSCodeForeground,
+                        tint = SettingsForeground,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -184,7 +184,7 @@ fun SettingsScreen(
 
                 Text(
                     text = "Settings",
-                    color = VSCodeHeaderForeground,
+                    color = SettingsHeaderForeground,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -199,7 +199,7 @@ fun SettingsScreen(
                     Icon(
                         imageVector = Icons.Default.Code,
                         contentDescription = "Open Settings (JSON)",
-                        tint = VSCodeForeground,
+                        tint = SettingsForeground,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -213,7 +213,7 @@ fun SettingsScreen(
                         Icon(
                             imageVector = Icons.Default.MoreVert,
                             contentDescription = "More Actions",
-                            tint = VSCodeForeground,
+                            tint = SettingsForeground,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -221,28 +221,28 @@ fun SettingsScreen(
                     DropdownMenu(
                         expanded = showTopMenu,
                         onDismissRequest = { showTopMenu = false },
-                        modifier = Modifier.background(VSCodeHeaderBg)
+                        modifier = Modifier.background(SettingsHeaderBg)
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Open Settings (JSON)", color = VSCodeForeground, fontSize = 13.sp) },
-                            leadingIcon = { Icon(Icons.Default.Code, null, tint = VSCodeForeground, modifier = Modifier.size(16.dp)) },
+                            text = { Text("Open Settings (JSON)", color = SettingsForeground, fontSize = 13.sp) },
+                            leadingIcon = { Icon(Icons.Default.Code, null, tint = SettingsForeground, modifier = Modifier.size(16.dp)) },
                             onClick = {
                                 showTopMenu = false
                                 isJsonMode = true
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("Show Modified Only (@modified)", color = VSCodeForeground, fontSize = 13.sp) },
-                            leadingIcon = { Icon(Icons.Default.FilterList, null, tint = VSCodeForeground, modifier = Modifier.size(16.dp)) },
+                            text = { Text("Show Modified Only (@modified)", color = SettingsForeground, fontSize = 13.sp) },
+                            leadingIcon = { Icon(Icons.Default.FilterList, null, tint = SettingsForeground, modifier = Modifier.size(16.dp)) },
                             onClick = {
                                 showTopMenu = false
                                 searchQuery = "@modified"
                             }
                         )
-                        HorizontalDivider(color = VSCodeRowDivider)
+                        HorizontalDivider(color = SettingsRowDivider)
                         DropdownMenuItem(
-                            text = { Text("Reset All Settings", color = VSCodeErrorFg, fontSize = 13.sp) },
-                            leadingIcon = { Icon(Icons.Default.RestartAlt, null, tint = VSCodeErrorFg, modifier = Modifier.size(16.dp)) },
+                            text = { Text("Reset All Settings", color = SettingsErrorFg, fontSize = 13.sp) },
+                            leadingIcon = { Icon(Icons.Default.RestartAlt, null, tint = SettingsErrorFg, modifier = Modifier.size(16.dp)) },
                             onClick = {
                                 showTopMenu = false
                                 showResetAllConfirm = true
@@ -253,7 +253,7 @@ fun SettingsScreen(
             }
         }
 
-        HorizontalDivider(color = VSCodeRowDivider, thickness = 1.dp)
+        HorizontalDivider(color = SettingsRowDivider, thickness = 1.dp)
 
         // ---------------------------------------------------------------------
         // 2. VS Code Search Box (Exact search-container with filter widget)
@@ -269,10 +269,10 @@ fun SettingsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(34.dp)
-                    .background(VSCodeInputBg, RoundedCornerShape(2.dp))
+                    .background(SettingsInputBg, RoundedCornerShape(2.dp))
                     .border(
                         width = 1.dp,
-                        color = if (isSearchFocused) VSCodeFocusBorder else VSCodeInputBorder,
+                        color = if (isSearchFocused) SettingsFocusBorder else SettingsInputBorder,
                         shape = RoundedCornerShape(2.dp)
                     )
                     .padding(horizontal = 8.dp),
@@ -281,7 +281,7 @@ fun SettingsScreen(
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = null,
-                    tint = if (isSearchFocused) VSCodeForeground else VSCodeDescription,
+                    tint = if (isSearchFocused) SettingsForeground else SettingsDescription,
                     modifier = Modifier.size(16.dp)
                 )
 
@@ -291,7 +291,7 @@ fun SettingsScreen(
                     if (searchQuery.isEmpty()) {
                         Text(
                             text = "Search settings",
-                            color = VSCodeDescription,
+                            color = SettingsDescription,
                             fontSize = 13.sp
                         )
                     }
@@ -304,11 +304,11 @@ fun SettingsScreen(
                             .onFocusChanged { isSearchFocused = it.isFocused },
                         singleLine = true,
                         textStyle = TextStyle(
-                            color = VSCodeHeaderForeground,
+                            color = SettingsHeaderForeground,
                             fontSize = 13.sp,
                             fontFamily = FontFamily.SansSerif
                         ),
-                        cursorBrush = SolidColor(VSCodeFocusBorder),
+                        cursorBrush = SolidColor(SettingsFocusBorder),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                         keyboardActions = KeyboardActions(onSearch = {
                             focusManager.clearFocus()
@@ -330,13 +330,13 @@ fun SettingsScreen(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Clear search",
-                            tint = VSCodeDescription,
+                            tint = SettingsDescription,
                             modifier = Modifier.size(14.dp)
                         )
                     }
                 }
 
-                // VS Code Search Filter Widget (codicon-filter)
+                // Search Filter Menu
                 Box {
                     IconButton(
                         onClick = { showSearchFilterMenu = true },
@@ -345,7 +345,7 @@ fun SettingsScreen(
                         Icon(
                             imageVector = Icons.Default.FilterList,
                             contentDescription = "Filter Settings",
-                            tint = if (searchQuery.contains("@modified")) VSCodeFocusBorder else VSCodeDescription,
+                            tint = if (searchQuery.contains("@modified")) SettingsFocusBorder else SettingsDescription,
                             modifier = Modifier.size(15.dp)
                         )
                     }
@@ -353,10 +353,10 @@ fun SettingsScreen(
                     DropdownMenu(
                         expanded = showSearchFilterMenu,
                         onDismissRequest = { showSearchFilterMenu = false },
-                        modifier = Modifier.background(VSCodeHeaderBg)
+                        modifier = Modifier.background(SettingsHeaderBg)
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Filter: @modified", color = VSCodeForeground, fontSize = 13.sp) },
+                            text = { Text("Filter: @modified", color = SettingsForeground, fontSize = 13.sp) },
                             onClick = {
                                 showSearchFilterMenu = false
                                 searchQuery = if (searchQuery.contains("@modified")) "" else "@modified"
@@ -365,7 +365,7 @@ fun SettingsScreen(
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("Clear Filters", color = VSCodeDescription, fontSize = 13.sp) },
+                            text = { Text("Clear Filters", color = SettingsDescription, fontSize = 13.sp) },
                             onClick = {
                                 showSearchFilterMenu = false
                                 searchQuery = ""
@@ -378,7 +378,7 @@ fun SettingsScreen(
             }
         }
 
-        HorizontalDivider(color = VSCodeRowDivider, thickness = 1.dp)
+        HorizontalDivider(color = SettingsRowDivider, thickness = 1.dp)
 
         // ---------------------------------------------------------------------
         // 3. Settings Tree List (Grouped by Category Section Headers, No Tabs!)
@@ -420,7 +420,7 @@ fun SettingsScreen(
                         "No settings have been modified from defaults."
                     else
                         "No settings found matching '$searchQuery'.",
-                    color = VSCodeDescription,
+                    color = SettingsDescription,
                     fontSize = 13.sp
                 )
             }
@@ -435,12 +435,12 @@ fun SettingsScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(VSCodeBg)
+                                .background(SettingsBg)
                                 .padding(start = 14.dp, end = 14.dp, top = 18.dp, bottom = 6.dp)
                         ) {
                             Text(
                                 text = category,
-                                color = VSCodeHeaderForeground,
+                                color = SettingsHeaderForeground,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -452,7 +452,7 @@ fun SettingsScreen(
                         val isModified = settingsManager.isModified(def.key)
                         val currentValue = settingsState[def.key] ?: def.defaultValue
 
-                        VSCodeSettingRow(
+                        SettingRow(
                             definition = def,
                             currentValue = currentValue,
                             isModified = isModified,
@@ -473,7 +473,7 @@ fun SettingsScreen(
     // Reset All Confirmation Dialog
     // -------------------------------------------------------------------------
     if (showResetAllConfirm) {
-        VSCodeDialog(
+        ModalDialog(
             title = "Reset all settings?",
             message = "This will restore all configuration in settings.json to their default values.",
             confirmButtonText = "Reset All",
@@ -494,7 +494,7 @@ fun SettingsScreen(
 // INDIVIDUAL VS CODE SETTING ROW (setting-item)
 // =============================================================================
 @Composable
-private fun VSCodeSettingRow(
+private fun SettingRow(
     definition: SettingDefinition,
     currentValue: Any,
     isModified: Boolean,
@@ -507,7 +507,7 @@ private fun VSCodeSettingRow(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(VSCodeBg)
+            .background(SettingsBg)
     ) {
         Row(
             modifier = Modifier
@@ -521,7 +521,7 @@ private fun VSCodeSettingRow(
                 modifier = Modifier
                     .width(3.dp)
                     .height(64.dp)
-                    .background(if (isModified) VSCodeModifiedIndicator else Color.Transparent)
+                    .background(if (isModified) SettingsModifiedIndicator else Color.Transparent)
             )
 
             Spacer(modifier = Modifier.width(11.dp))
@@ -542,7 +542,7 @@ private fun VSCodeSettingRow(
                     // Category: Label (e.g. "Files: Auto Save")
                     Text(
                         text = definition.title,
-                        color = VSCodeHeaderForeground,
+                        color = SettingsHeaderForeground,
                         fontSize = 13.5.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -552,7 +552,7 @@ private fun VSCodeSettingRow(
                     // ID / Key badge
                     Text(
                         text = definition.key,
-                        color = VSCodeBadgeFg,
+                        color = SettingsBadgeFg,
                         fontFamily = FontFamily.Monospace,
                         fontSize = 11.sp,
                         maxLines = 1,
@@ -570,7 +570,7 @@ private fun VSCodeSettingRow(
                             Icon(
                                 imageVector = if (isModified) Icons.Default.SettingsBackupRestore else Icons.Default.MoreHoriz,
                                 contentDescription = if (isModified) "Reset Setting" else "More",
-                                tint = if (isModified) VSCodeModifiedIndicator else VSCodeBadgeFg,
+                                tint = if (isModified) SettingsModifiedIndicator else SettingsBadgeFg,
                                 modifier = Modifier.size(15.dp)
                             )
                         }
@@ -578,12 +578,12 @@ private fun VSCodeSettingRow(
                         DropdownMenu(
                             expanded = showActionMenu,
                             onDismissRequest = { showActionMenu = false },
-                            modifier = Modifier.background(VSCodeHeaderBg)
+                            modifier = Modifier.background(SettingsHeaderBg)
                         ) {
                             if (isModified) {
                                 DropdownMenuItem(
-                                    text = { Text("Reset Setting", color = VSCodeForeground, fontSize = 13.sp) },
-                                    leadingIcon = { Icon(Icons.Default.Refresh, null, tint = VSCodeForeground, modifier = Modifier.size(16.dp)) },
+                                    text = { Text("Reset Setting", color = SettingsForeground, fontSize = 13.sp) },
+                                    leadingIcon = { Icon(Icons.Default.Refresh, null, tint = SettingsForeground, modifier = Modifier.size(16.dp)) },
                                     onClick = {
                                         showActionMenu = false
                                         onReset()
@@ -591,8 +591,8 @@ private fun VSCodeSettingRow(
                                 )
                             }
                             DropdownMenuItem(
-                                text = { Text("Copy Setting ID", color = VSCodeForeground, fontSize = 13.sp) },
-                                leadingIcon = { Icon(Icons.Default.ContentCopy, null, tint = VSCodeForeground, modifier = Modifier.size(16.dp)) },
+                                text = { Text("Copy Setting ID", color = SettingsForeground, fontSize = 13.sp) },
+                                leadingIcon = { Icon(Icons.Default.ContentCopy, null, tint = SettingsForeground, modifier = Modifier.size(16.dp)) },
                                 onClick = {
                                     showActionMenu = false
                                     ClipboardHelper.copyText(context, definition.key, "setting-id")
@@ -600,8 +600,8 @@ private fun VSCodeSettingRow(
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text("Copy as JSON", color = VSCodeForeground, fontSize = 13.sp) },
-                                leadingIcon = { Icon(Icons.Default.Code, null, tint = VSCodeForeground, modifier = Modifier.size(16.dp)) },
+                                text = { Text("Copy as JSON", color = SettingsForeground, fontSize = 13.sp) },
+                                leadingIcon = { Icon(Icons.Default.Code, null, tint = SettingsForeground, modifier = Modifier.size(16.dp)) },
                                 onClick = {
                                     showActionMenu = false
                                     val jsonSnippet = "\"${definition.key}\": ${if (currentValue is String) "\"$currentValue\"" else currentValue}"
@@ -618,7 +618,7 @@ private fun VSCodeSettingRow(
                 // Description
                 Text(
                     text = definition.description,
-                    color = VSCodeDescription,
+                    color = SettingsDescription,
                     fontSize = 12.sp,
                     lineHeight = 16.sp
                 )
@@ -643,12 +643,12 @@ private fun VSCodeSettingRow(
                                 modifier = Modifier
                                     .size(18.dp)
                                     .background(
-                                        if (isChecked) VSCodeFocusBorder else VSCodeInputBg,
+                                        if (isChecked) SettingsFocusBorder else SettingsInputBg,
                                         RoundedCornerShape(2.dp)
                                     )
                                     .border(
                                         width = 1.dp,
-                                        color = if (isChecked) VSCodeFocusBorder else VSCodeInputBorder,
+                                        color = if (isChecked) SettingsFocusBorder else SettingsInputBorder,
                                         shape = RoundedCornerShape(2.dp)
                                     ),
                                 contentAlignment = Alignment.Center
@@ -667,7 +667,7 @@ private fun VSCodeSettingRow(
 
                             Text(
                                 text = if (isChecked) "Enabled" else "Disabled",
-                                color = if (isChecked) VSCodeForeground else VSCodeDescription,
+                                color = if (isChecked) SettingsForeground else SettingsDescription,
                                 fontSize = 13.sp
                             )
                         }
@@ -682,10 +682,10 @@ private fun VSCodeSettingRow(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(32.dp)
-                                    .background(VSCodeInputBg, RoundedCornerShape(2.dp))
+                                    .background(SettingsInputBg, RoundedCornerShape(2.dp))
                                     .border(
                                         width = 1.dp,
-                                        color = if (isDropdownExpanded) VSCodeFocusBorder else VSCodeInputBorder,
+                                        color = if (isDropdownExpanded) SettingsFocusBorder else SettingsInputBorder,
                                         shape = RoundedCornerShape(2.dp)
                                     )
                                     .clickable { isDropdownExpanded = !isDropdownExpanded }
@@ -695,7 +695,7 @@ private fun VSCodeSettingRow(
                             ) {
                                 Text(
                                     text = currentValue.toString(),
-                                    color = VSCodeForeground,
+                                    color = SettingsForeground,
                                     fontSize = 13.sp,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
@@ -704,7 +704,7 @@ private fun VSCodeSettingRow(
                                 Icon(
                                     imageVector = Icons.Default.KeyboardArrowDown,
                                     contentDescription = "Dropdown",
-                                    tint = if (isDropdownExpanded) VSCodeFocusBorder else VSCodeDescription,
+                                    tint = if (isDropdownExpanded) SettingsFocusBorder else SettingsDescription,
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -713,8 +713,8 @@ private fun VSCodeSettingRow(
                                 expanded = isDropdownExpanded,
                                 onDismissRequest = { isDropdownExpanded = false },
                                 modifier = Modifier
-                                    .background(VSCodeInputBg)
-                                    .border(1.dp, VSCodeInputBorder, RoundedCornerShape(2.dp))
+                                    .background(SettingsInputBg)
+                                    .border(1.dp, SettingsInputBorder, RoundedCornerShape(2.dp))
                                     .heightIn(max = 240.dp)
                             ) {
                                 definition.options.forEach { opt ->
@@ -728,7 +728,7 @@ private fun VSCodeSettingRow(
                                             ) {
                                                 Text(
                                                     text = opt,
-                                                    color = if (isSelected) VSCodeFocusBorder else VSCodeForeground,
+                                                    color = if (isSelected) SettingsFocusBorder else SettingsForeground,
                                                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                                                     fontSize = 13.sp
                                                 )
@@ -737,7 +737,7 @@ private fun VSCodeSettingRow(
                                                     Icon(
                                                         imageVector = Icons.Default.Check,
                                                         contentDescription = null,
-                                                        tint = VSCodeFocusBorder,
+                                                        tint = SettingsFocusBorder,
                                                         modifier = Modifier.size(14.dp)
                                                     )
                                                 }
@@ -748,7 +748,7 @@ private fun VSCodeSettingRow(
                                             isDropdownExpanded = false
                                         },
                                         modifier = Modifier.background(
-                                            if (isSelected) VSCodeFocusBorder.copy(alpha = 0.12f) else Color.Transparent
+                                            if (isSelected) SettingsFocusBorder.copy(alpha = 0.12f) else Color.Transparent
                                         ),
                                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
                                     )
@@ -774,10 +774,10 @@ private fun VSCodeSettingRow(
                                 modifier = Modifier
                                     .width(140.dp)
                                     .height(32.dp)
-                                    .background(VSCodeInputBg, RoundedCornerShape(2.dp))
+                                    .background(SettingsInputBg, RoundedCornerShape(2.dp))
                                     .border(
                                         width = 1.dp,
-                                        color = if (isEditing) VSCodeFocusBorder else VSCodeInputBorder,
+                                        color = if (isEditing) SettingsFocusBorder else SettingsInputBorder,
                                         shape = RoundedCornerShape(2.dp)
                                     )
                                     .padding(start = 8.dp),
@@ -798,11 +798,11 @@ private fun VSCodeSettingRow(
                                     singleLine = true,
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                     textStyle = TextStyle(
-                                        color = VSCodeHeaderForeground,
+                                        color = SettingsHeaderForeground,
                                         fontSize = 13.sp,
                                         fontFamily = FontFamily.Monospace
                                     ),
-                                    cursorBrush = SolidColor(VSCodeFocusBorder)
+                                    cursorBrush = SolidColor(SettingsFocusBorder)
                                 )
 
                                 // Mini Stepper Buttons
@@ -816,7 +816,7 @@ private fun VSCodeSettingRow(
                                     Icon(
                                         imageVector = Icons.Default.Remove,
                                         contentDescription = "Decrease",
-                                        tint = if (currentNum > min) VSCodeForeground else VSCodeDescription,
+                                        tint = if (currentNum > min) SettingsForeground else SettingsDescription,
                                         modifier = Modifier.size(12.dp)
                                     )
                                 }
@@ -831,7 +831,7 @@ private fun VSCodeSettingRow(
                                     Icon(
                                         imageVector = Icons.Default.Add,
                                         contentDescription = "Increase",
-                                        tint = if (currentNum < max) VSCodeForeground else VSCodeDescription,
+                                        tint = if (currentNum < max) SettingsForeground else SettingsDescription,
                                         modifier = Modifier.size(12.dp)
                                     )
                                 }
@@ -841,7 +841,7 @@ private fun VSCodeSettingRow(
 
                             Text(
                                 text = if (definition.key.contains("Delay")) "ms" else if (definition.key.contains("FontSize")) "px" else "",
-                                color = VSCodeDescription,
+                                color = SettingsDescription,
                                 fontSize = 12.sp
                             )
                         }
@@ -855,10 +855,10 @@ private fun VSCodeSettingRow(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(32.dp)
-                                .background(VSCodeInputBg, RoundedCornerShape(2.dp))
+                                .background(SettingsInputBg, RoundedCornerShape(2.dp))
                                 .border(
                                     width = 1.dp,
-                                    color = if (isTextFocused) VSCodeFocusBorder else VSCodeInputBorder,
+                                    color = if (isTextFocused) SettingsFocusBorder else SettingsInputBorder,
                                     shape = RoundedCornerShape(2.dp)
                                 )
                                 .padding(horizontal = 8.dp),
@@ -872,10 +872,10 @@ private fun VSCodeSettingRow(
                                     .onFocusChanged { isTextFocused = it.isFocused },
                                 singleLine = true,
                                 textStyle = TextStyle(
-                                    color = VSCodeHeaderForeground,
+                                    color = SettingsHeaderForeground,
                                     fontSize = 13.sp
                                 ),
-                                cursorBrush = SolidColor(VSCodeFocusBorder)
+                                cursorBrush = SolidColor(SettingsFocusBorder)
                             )
                         }
                     }
@@ -907,7 +907,7 @@ private fun VSCodeSettingRow(
         }
 
         // Row Separator (VS Code row divider)
-        HorizontalDivider(color = VSCodeRowDivider, thickness = 1.dp)
+        HorizontalDivider(color = SettingsRowDivider, thickness = 1.dp)
     }
 }
 
@@ -915,7 +915,7 @@ private fun VSCodeSettingRow(
 // VS CODE settings.json CODE EDITOR VIEW ("Open Settings (JSON)")
 // =============================================================================
 @Composable
-private fun VSCodeJsonEditorView(
+private fun JsonEditorView(
     settingsManager: SettingsManager,
     onCloseJson: () -> Unit,
     onSaveSuccess: () -> Unit
@@ -928,7 +928,7 @@ private fun VSCodeJsonEditorView(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(VSCodeBg)
+            .background(SettingsBg)
             .navigationBarsPadding()
             .imePadding()
     ) {
@@ -936,7 +936,7 @@ private fun VSCodeJsonEditorView(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(VSCodeHeaderBg)
+                .background(SettingsHeaderBg)
                 .statusBarsPadding()
         ) {
             Row(
@@ -952,7 +952,7 @@ private fun VSCodeJsonEditorView(
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Back to UI",
-                    tint = VSCodeForeground,
+                    tint = SettingsForeground,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -960,7 +960,7 @@ private fun VSCodeJsonEditorView(
             // Tab badge
             Row(
                 modifier = Modifier
-                    .background(VSCodeBg, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                    .background(SettingsBg, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
                     .padding(horizontal = 12.dp, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -973,7 +973,7 @@ private fun VSCodeJsonEditorView(
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "settings.json",
-                    color = VSCodeHeaderForeground,
+                    color = SettingsHeaderForeground,
                     fontSize = 13.sp,
                     fontFamily = FontFamily.Monospace
                 )
@@ -993,7 +993,7 @@ private fun VSCodeJsonEditorView(
                     }
                 }
             ) {
-                Text("Prettify", color = VSCodeLinkFg, fontSize = 12.sp)
+                Text("Prettify", color = SettingsLinkFg, fontSize = 12.sp)
             }
 
             // Save JSON
@@ -1007,32 +1007,32 @@ private fun VSCodeJsonEditorView(
                     }
                 }
             ) {
-                Text("Save", color = VSCodeFocusBorder, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                Text("Save", color = SettingsFocusBorder, fontWeight = FontWeight.Bold, fontSize = 12.sp)
             }
         }
         }
 
-        HorizontalDivider(color = VSCodeRowDivider, thickness = 1.dp)
+        HorizontalDivider(color = SettingsRowDivider, thickness = 1.dp)
 
         // Error Banner if invalid
         if (parseError != null) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(VSCodeErrorFg.copy(alpha = 0.15f))
+                    .background(SettingsErrorFg.copy(alpha = 0.15f))
                     .padding(horizontal = 12.dp, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Default.ErrorOutline,
                     contentDescription = null,
-                    tint = VSCodeErrorFg,
+                    tint = SettingsErrorFg,
                     modifier = Modifier.size(16.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = parseError ?: "",
-                    color = VSCodeErrorFg,
+                    color = SettingsErrorFg,
                     fontSize = 12.sp,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
@@ -1054,12 +1054,12 @@ private fun VSCodeJsonEditorView(
                 },
                 modifier = Modifier.fillMaxSize(),
                 textStyle = TextStyle(
-                    color = VSCodeHeaderForeground,
+                    color = SettingsHeaderForeground,
                     fontFamily = FontFamily.Monospace,
                     fontSize = 12.5.sp,
                     lineHeight = 18.sp
                 ),
-                cursorBrush = SolidColor(VSCodeFocusBorder)
+                cursorBrush = SolidColor(SettingsFocusBorder)
             )
         }
     }

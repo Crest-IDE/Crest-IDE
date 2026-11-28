@@ -26,11 +26,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cresteditor.core.model.FileTypeRegistry
 import com.cresteditor.core.platform.ClipboardHelper
-import com.cresteditor.icons.Codicons
+import com.cresteditor.icons.CrestIcons
 import com.cresteditor.ui.components.FileTreeItem
-import com.cresteditor.ui.components.VSCodeDropdownMenu
-import com.cresteditor.ui.components.VSCodeMenuItem
-import com.cresteditor.ui.components.VSCodeMenuSeparator
+import com.cresteditor.ui.components.ContextMenu
+import com.cresteditor.ui.components.ContextMenuItem
+import com.cresteditor.ui.components.ContextMenuSeparator
 import java.io.File
 
 sealed interface InlineOpState {
@@ -142,7 +142,7 @@ fun ExplorerPane(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = if (isProjectCollapsed) Codicons.ChevronRight else Codicons.ChevronDown,
+                    imageVector = if (isProjectCollapsed) CrestIcons.ChevronRight else CrestIcons.ChevronDown,
                     contentDescription = null,
                     tint = DrawerTheme.SectionHeaderFg,
                     modifier = Modifier.size(17.dp)
@@ -166,7 +166,7 @@ fun ExplorerPane(
                     modifier = Modifier.size(28.dp)
                 ) {
                     Icon(
-                        imageVector = Codicons.NewFile,
+                        imageVector = CrestIcons.NewFile,
                         contentDescription = "New File",
                         tint = DrawerTheme.TextPrimary,
                         modifier = Modifier.size(19.dp)
@@ -179,7 +179,7 @@ fun ExplorerPane(
                     modifier = Modifier.size(28.dp)
                 ) {
                     Icon(
-                        imageVector = Codicons.NewFolder,
+                        imageVector = CrestIcons.NewFolder,
                         contentDescription = "New Folder",
                         tint = DrawerTheme.TextPrimary,
                         modifier = Modifier.size(19.dp)
@@ -192,7 +192,7 @@ fun ExplorerPane(
                     modifier = Modifier.size(28.dp)
                 ) {
                     Icon(
-                        imageVector = Codicons.Refresh,
+                        imageVector = CrestIcons.Refresh,
                         contentDescription = "Refresh Explorer",
                         tint = DrawerTheme.TextPrimary,
                         modifier = Modifier.size(18.dp)
@@ -208,7 +208,7 @@ fun ExplorerPane(
                     modifier = Modifier.size(28.dp)
                 ) {
                     Icon(
-                        imageVector = Codicons.CollapseAll,
+                        imageVector = CrestIcons.CollapseAll,
                         contentDescription = "Collapse Folders",
                         tint = DrawerTheme.TextPrimary,
                         modifier = Modifier.size(19.dp)
@@ -453,7 +453,7 @@ fun ExplorerPane(
                                     ) {
                                         if (isFolder) {
                                             Icon(
-                                                imageVector = if (isExpanded) Codicons.ChevronDown else Codicons.ChevronRight,
+                                                imageVector = if (isExpanded) CrestIcons.ChevronDown else CrestIcons.ChevronRight,
                                                 contentDescription = null,
                                                 tint = DrawerTheme.ActivityBarInactive,
                                                 modifier = Modifier.size(17.dp)
@@ -535,34 +535,34 @@ fun ExplorerPane(
                             }
                     ) {
                         if (showEmptyAreaMenu) {
-                            VSCodeDropdownMenu(
+                            ContextMenu(
                                 expanded = true,
                                 offset = emptyAreaOffset,
                                 onDismissRequest = { showEmptyAreaMenu = false }
                             ) {
-                                VSCodeMenuItem(
+                                ContextMenuItem(
                                     text = "New File...",
                                     onClick = {
                                         showEmptyAreaMenu = false
                                         startInlineCreation(isFolder = false, parentPath = null)
                                     }
                                 )
-                                VSCodeMenuItem(
+                                ContextMenuItem(
                                     text = "New Folder...",
                                     onClick = {
                                         showEmptyAreaMenu = false
                                         startInlineCreation(isFolder = true, parentPath = null)
                                     }
                                 )
-                                VSCodeMenuSeparator()
-                                VSCodeMenuItem(
+                                ContextMenuSeparator()
+                                ContextMenuItem(
                                     text = "Paste",
                                     shortcut = "Ctrl+V",
                                     enabled = false,
                                     onClick = { showEmptyAreaMenu = false }
                                 )
-                                VSCodeMenuSeparator()
-                                VSCodeMenuItem(
+                                ContextMenuSeparator()
+                                ContextMenuItem(
                                     text = "Copy Path",
                                     onClick = {
                                         showEmptyAreaMenu = false
@@ -570,8 +570,8 @@ fun ExplorerPane(
                                         Toast.makeText(context, "Workspace path copied to clipboard", Toast.LENGTH_SHORT).show()
                                     }
                                 )
-                                VSCodeMenuSeparator()
-                                VSCodeMenuItem(
+                                ContextMenuSeparator()
+                                ContextMenuItem(
                                     text = "Open in Integrated Terminal",
                                     onClick = {
                                         showEmptyAreaMenu = false
@@ -587,51 +587,51 @@ fun ExplorerPane(
             // VS Code Standard Context Menu for Item
             if (contextMenuItem != null) {
                 val item = contextMenuItem!!
-                VSCodeDropdownMenu(
+                ContextMenu(
                     expanded = true,
                     offset = touchOffset,
                     onDismissRequest = { contextMenuItem = null }
                 ) {
                     if (item.isDirectory) {
-                        VSCodeMenuItem(
+                        ContextMenuItem(
                             text = "New File...",
                             onClick = {
                                 contextMenuItem = null
                                 startInlineCreation(isFolder = false, parentPath = item.path)
                             }
                         )
-                        VSCodeMenuItem(
+                        ContextMenuItem(
                             text = "New Folder...",
                             onClick = {
                                 contextMenuItem = null
                                 startInlineCreation(isFolder = true, parentPath = item.path)
                             }
                         )
-                        VSCodeMenuSeparator()
+                        ContextMenuSeparator()
                     }
 
-                    VSCodeMenuItem(
+                    ContextMenuItem(
                         text = "Cut",
                         shortcut = "Ctrl+X",
                         enabled = false,
                         onClick = { contextMenuItem = null }
                     )
-                    VSCodeMenuItem(
+                    ContextMenuItem(
                         text = "Copy",
                         shortcut = "Ctrl+C",
                         enabled = false,
                         onClick = { contextMenuItem = null }
                     )
-                    VSCodeMenuItem(
+                    ContextMenuItem(
                         text = "Paste",
                         shortcut = "Ctrl+V",
                         enabled = false,
                         onClick = { contextMenuItem = null }
                     )
 
-                    VSCodeMenuSeparator()
+                    ContextMenuSeparator()
 
-                    VSCodeMenuItem(
+                    ContextMenuItem(
                         text = "Copy Path",
                         onClick = {
                             contextMenuItem = null
@@ -639,7 +639,7 @@ fun ExplorerPane(
                             Toast.makeText(context, "Path copied to clipboard", Toast.LENGTH_SHORT).show()
                         }
                     )
-                    VSCodeMenuItem(
+                    ContextMenuItem(
                         text = "Copy Relative Path",
                         onClick = {
                             contextMenuItem = null
@@ -655,9 +655,9 @@ fun ExplorerPane(
                         }
                     )
 
-                    VSCodeMenuSeparator()
+                    ContextMenuSeparator()
 
-                    VSCodeMenuItem(
+                    ContextMenuItem(
                         text = "Rename...",
                         shortcut = "F2",
                         onClick = {
@@ -665,7 +665,7 @@ fun ExplorerPane(
                             startInlineRename(item)
                         }
                     )
-                    VSCodeMenuItem(
+                    ContextMenuItem(
                         text = "Delete",
                         shortcut = "Del",
                         isDestructive = true,

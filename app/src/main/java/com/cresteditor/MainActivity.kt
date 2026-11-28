@@ -50,7 +50,7 @@ import com.cresteditor.ui.TerminalScreen
 import com.cresteditor.ui.SettingsScreen
 import com.cresteditor.ui.components.*
 import com.cresteditor.ui.components.StoragePermissionDialog
-import com.cresteditor.ui.components.VSCodeCommandPalette
+import com.cresteditor.ui.components.CommandPalette
 import com.cresteditor.ui.theme.*
 import com.cresteditor.workspace.WorkspaceManager
 import kotlinx.coroutines.launch
@@ -100,6 +100,10 @@ class MainActivity : ComponentActivity() {
 
         rootfsManager = RootfsManager(this)
         settingsManager = SettingsManager(applicationContext)
+
+        // Pre-warm workspace loading immediately on app launch so file tree is ready before Compose renders
+        val initialViewModel = androidx.lifecycle.ViewModelProvider(this)[MainViewModel::class.java]
+        initialViewModel.loadWorkspace(applicationContext)
 
         setContent {
             CrestTheme {
@@ -255,7 +259,7 @@ class MainActivity : ComponentActivity() {
                 // Delete Confirmation Dialog
                 if (showDeleteDialog && deleteTargetItem != null) {
                     val isDir = deleteTargetItem!!.isDirectory
-                    VSCodeDialog(
+                    ModalDialog(
                         title = if (isDir) "Delete Folder" else "Delete File",
                         message = "Are you sure you want to delete '${deleteTargetItem!!.name}'? This cannot be undone.",
                         confirmButtonText = "Delete",
@@ -271,7 +275,7 @@ class MainActivity : ComponentActivity() {
                 val pendingCloseTab by viewModel.pendingCloseTab.collectAsState()
                 if (pendingCloseTab != null) {
                     val tab = pendingCloseTab!!
-                    VSCodeDialog(
+                    ModalDialog(
                         title = "Do you want to save the changes you made to ${tab.title}?",
                         message = "Your changes will be lost if you don't save them.",
                         confirmButtonText = "Save",
@@ -569,7 +573,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 if (showCommandPalette) {
-                    VSCodeCommandPalette(
+                    CommandPalette(
                         initialQuery = commandPaletteInitialQuery,
                         commandRegistry = commandRegistry,
                         fileTreeItems = fileTreeItems,

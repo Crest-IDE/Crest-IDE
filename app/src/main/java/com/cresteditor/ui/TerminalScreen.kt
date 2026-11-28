@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.coerceIn
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.cresteditor.icons.Codicons
+import com.cresteditor.icons.CrestIcons
 import com.termux.terminal.TerminalSession
 import com.termux.view.TerminalView
 import com.cresteditor.runtime.NativeTerminalClient
@@ -317,7 +317,7 @@ fun TerminalScreen(
                 modifier = Modifier.size(24.dp)
             ) {
                 Icon(
-                    imageVector = Codicons.Refresh,
+                    imageVector = CrestIcons.Refresh,
                     contentDescription = "Restart Terminal",
                     tint = Color(0xFFC5C5C5),
                     modifier = Modifier.size(15.dp)
@@ -331,7 +331,7 @@ fun TerminalScreen(
                 modifier = Modifier.size(24.dp)
             ) {
                 Icon(
-                    imageVector = Codicons.ClearAll,
+                    imageVector = CrestIcons.ClearAll,
                     contentDescription = "Clear",
                     tint = Color(0xFFC5C5C5),
                     modifier = Modifier.size(15.dp)
@@ -359,7 +359,7 @@ fun TerminalScreen(
                 modifier = Modifier.size(24.dp)
             ) {
                 Icon(
-                    imageVector = if (isMaximized) Codicons.ChevronDown else Codicons.ChevronUp,
+                    imageVector = if (isMaximized) CrestIcons.ChevronDown else CrestIcons.ChevronUp,
                     contentDescription = if (isMaximized) "Restore Panel" else "Maximize Panel",
                     tint = Color(0xFFC5C5C5),
                     modifier = Modifier.size(16.dp)
@@ -373,7 +373,7 @@ fun TerminalScreen(
                 modifier = Modifier.size(24.dp)
             ) {
                 Icon(
-                    imageVector = Codicons.Close,
+                    imageVector = CrestIcons.Close,
                     contentDescription = "Close Panel",
                     tint = Color(0xFFC5C5C5),
                     modifier = Modifier.size(15.dp)

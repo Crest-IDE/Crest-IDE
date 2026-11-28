@@ -20,7 +20,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cresteditor.icons.Codicons
+import com.cresteditor.icons.CrestIcons
 import com.cresteditor.ui.theme.*
 
 data class CrestTabItem(
@@ -96,7 +96,7 @@ fun CrestTabBar(
                         )
                     } else {
                         Icon(
-                            imageVector = Codicons.Close,
+                            imageVector = CrestIcons.Close,
                             contentDescription = "Close Tab",
                             tint = CrestTextSecondary,
                             modifier = Modifier.size(14.dp)

@@ -22,7 +22,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
 // =============================================================================
-// VS CODE / ZED MODAL TOKENS (Compact, High-Contrast Slate)
+// MODAL TOKENS (Compact, High-Contrast Slate)
 // =============================================================================
 private val DialogBackground = Color(0xFF252526)      // editorWidget.background
 private val DialogBorder = Color(0xFF383838)          // editorWidget.border
@@ -38,14 +38,14 @@ private val ButtonSecondaryPressed = Color(0xFF3D3D3D)
 private val ButtonSecondaryText = Color(0xFFCCCCCC)
 
 /**
- * Unified VS Code / Zed Styled Modal Dialog for Crest-Editor.
+ * Unified Styled Modal Dialog for Crest-Editor.
  * Ensures strict design consistency across all dialogs:
  * - 6dp rounded corners with 1px #383838 border
  * - Compact typography (15sp title, 13sp body)
  * - Standardized primary, destructive, and secondary action buttons
  */
 @Composable
-fun VSCodeDialog(
+fun ModalDialog(
     title: String,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
@@ -107,7 +107,7 @@ fun VSCodeDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (!dismissButtonText.isNullOrBlank()) {
-                        VSCodeActionButton(
+                        DialogActionButton(
                             text = dismissButtonText,
                             onClick = {
                                 onDismiss?.invoke() ?: onDismissRequest()
@@ -117,7 +117,7 @@ fun VSCodeDialog(
                     }
 
                     if (!neutralButtonText.isNullOrBlank()) {
-                        VSCodeActionButton(
+                        DialogActionButton(
                             text = neutralButtonText,
                             onClick = {
                                 onNeutral?.invoke()
@@ -126,7 +126,7 @@ fun VSCodeDialog(
                         )
                     }
 
-                    VSCodeActionButton(
+                    DialogActionButton(
                         text = confirmButtonText,
                         onClick = onConfirm,
                         isPrimary = true,
@@ -139,10 +139,10 @@ fun VSCodeDialog(
 }
 
 /**
- * Compact VS Code Styled Flat Action Button.
+ * Compact Styled Flat Action Button.
  */
 @Composable
-fun VSCodeActionButton(
+fun DialogActionButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
