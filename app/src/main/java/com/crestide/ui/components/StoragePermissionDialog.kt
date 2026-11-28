@@ -1,0 +1,23 @@
+package com.crestide.ui.components
+
+import androidx.compose.runtime.Composable
+
+/**
+ * Storage Permission Dialog styled with the unified modal theme.
+ * Prompts user for all-files access to enable /sdcard browsing in editor & terminal.
+ */
+@Composable
+fun StoragePermissionDialog(
+    onDismissRequest: () -> Unit,
+    onGrantPermission: () -> Unit
+) {
+    ModalDialog(
+        title = "Storage Access Required",
+        message = "Crest-IDE needs access to device storage to view and edit project files, and allow the terminal to access /sdcard.",
+        confirmButtonText = "Grant Permission",
+        dismissButtonText = "Not Now",
+        onConfirm = onGrantPermission,
+        onDismiss = onDismissRequest,
+        onDismissRequest = onDismissRequest
+    )
+}

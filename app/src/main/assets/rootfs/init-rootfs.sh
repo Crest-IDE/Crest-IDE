@@ -93,13 +93,10 @@ EOF
         cp -f /initrc "$PREFIX/rootfs/initrc" 2>/dev/null || true
     fi
 
-    # Ensure /etc/profile.d has updated repository URL
+    # Ensure /etc/profile.d has default shell optimizations
     if [ -d /etc/profile.d ]; then
-        cat <<'EOF' > /etc/profile.d/cresteditor.sh
+        cat <<'EOF' > /etc/profile.d/crestide.sh
 bind 'set enable-bracketed-paste on' 2>/dev/null || true
-if [ -f /etc/apk/repositories ] && grep -q "heysaish\.github\.io" /etc/apk/repositories 2>/dev/null; then
-    sed -i 's|heysaish\.github\.io/Crest-Packages|cresteditor\.github\.io/Crest-Packages|g' /etc/apk/repositories 2>/dev/null || true
-fi
 EOF
     fi
 
@@ -142,8 +139,8 @@ resolve_shell_path() {
 SETTINGS_FILE=""
 if [ -n "$PREFIX" ] && [ -f "$PREFIX/settings.json" ]; then
     SETTINGS_FILE="$PREFIX/settings.json"
-elif [ -f "/data/data/com.cresteditor/files/settings.json" ]; then
-    SETTINGS_FILE="/data/data/com.cresteditor/files/settings.json"
+elif [ -f "/data/data/com.crestide/files/settings.json" ]; then
+    SETTINGS_FILE="/data/data/com.crestide/files/settings.json"
 fi
 
 CANDIDATE_SHELL=""

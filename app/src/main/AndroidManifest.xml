@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.cresteditor">
+    package="com.crestide">
 
     <!-- Storage permissions -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
@@ -24,7 +24,7 @@
         android:enableOnBackInvokedCallback="true"
         android:extractNativeLibs="true"
         android:icon="@android:drawable/ic_menu_manage"
-        android:label="Crest-Editor"
+        android:label="Crest-IDE"
         android:roundIcon="@android:drawable/ic_menu_manage"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar">

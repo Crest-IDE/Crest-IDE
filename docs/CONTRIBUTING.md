@@ -1,6 +1,6 @@
-# Contributing to Crest-Editor
+# Contributing to Crest-IDE
 
-Thanks for your interest in contributing to Crest-Editor! Contributions of all kinds are welcome, including bug fixes, features, documentation, and testing.
+Thanks for your interest in contributing to Crest-IDE! Contributions of all kinds are welcome, including bug fixes, features, documentation, and testing.
 
 ## Reporting Issues
 
@@ -54,4 +54,4 @@ For major changes, consider opening an issue first to discuss the approach.
 
 ## Thank You
 
-Every contribution helps make Crest-Editor better. Thanks for being part of the project!
+Every contribution helps make Crest-IDE better. Thanks for being part of the project!

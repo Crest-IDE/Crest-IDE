@@ -2,37 +2,27 @@
 
 set -e
 
-echo "[1/2] Setting DNS resolver..."
+echo "[1/3] Setting DNS resolver..."
 printf 'nameserver 1.1.1.1\nnameserver 8.8.8.8\n' > /etc/resolv.conf
 
+echo "[2/3] Configuring Crest-Packages repository..."
+mkdir -p /var/db/xbps/keys /etc/xbps.d
+if [ -f "$PREFIX/e9:2f:1c:ca:83:ea:7b:81:5e:e6:b0:57:f3:62:be:af.plist" ]; then
+    cp -f "$PREFIX/e9:2f:1c:ca:83:ea:7b:81:5e:e6:b0:57:f3:62:be:af.plist" /var/db/xbps/keys/
+elif [ -f "/e9:2f:1c:ca:83:ea:7b:81:5e:e6:b0:57:f3:62:be:af.plist" ]; then
+    cp -f "/e9:2f:1c:ca:83:ea:7b:81:5e:e6:b0:57:f3:62:be:af.plist" /var/db/xbps/keys/
+fi
+
+if ! grep -q 'crest-ide.github.io/Crest-Packages' /etc/xbps.d/crest.conf 2>/dev/null; then
+    echo "repository=https://crest-ide.github.io/Crest-Packages/aarch64" > /etc/xbps.d/crest.conf
+fi
+
+echo "[3/3] Configuring Void Linux environment..."
 if command -v xbps-install >/dev/null 2>&1; then
-    echo "[2/2] Linux environment detected."
     if [ ! -e /usr/share/terminfo/x/xterm-256color ]; then
         echo "Configuring terminal support (ncurses)..."
         xbps-install -Sy ncurses-base ncurses-term || true
     fi
-elif command -v apk >/dev/null 2>&1; then
-    echo "[2/4] Trusting CrestEditor Repository Key..."
-    mkdir -p /etc/apk/keys
-    if [ -f "$PREFIX/crest@crestcode.rsa.pub" ]; then
-        cp -f "$PREFIX/crest@crestcode.rsa.pub" /etc/apk/keys/
-    fi
-
-    echo "[3/4] Adding Repositories..."
-    if ! grep -q "edge/main" /etc/apk/repositories 2>/dev/null; then
-        cat >> /etc/apk/repositories <<'EOF'
-https://dl-cdn.alpinelinux.org/alpine/edge/main
-https://dl-cdn.alpinelinux.org/alpine/edge/community
-EOF
-    fi
-
-    if ! grep -q 'crest-editor-dev.github.io/Crest-Packages' /etc/apk/repositories 2>/dev/null; then
-        echo 'https://crest-editor-dev.github.io/Crest-Packages' >> /etc/apk/repositories
-    fi
-
-    echo "[4/4] Updating Package indexes..."
-    apk update || true
-    apk add bash jq || true
 fi
 
 echo
@@ -47,7 +37,5 @@ else
 fi
 
 if command -v xbps-install >/dev/null 2>&1; then
-    echo "Package Manager: XBPS"
-elif command -v apk >/dev/null 2>&1; then
-    echo "Package Manager: APK"
+    echo "Package Manager: XBPS (Void Linux)"
 fi

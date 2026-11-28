@@ -1,7 +1,6 @@
 /**
- * Crest-Editor - Mythic Engine WebView Entrypoint
+ * Crest-IDE - Mythic Engine WebView Entrypoint
  *
- * Replaces Monaco with Mythic Editor:
  * High-performance piece-tree buffer & virtualized view engine.
  */
 
@@ -77,7 +76,7 @@ import './styles.css';
         }
       }
     } catch (err) {
-      console.warn('[CrestEditor] Failed to load Tree-sitter grammar for', grammar, err);
+      console.warn('[Crest-IDE] Failed to load Tree-sitter grammar for', grammar, err);
     }
   }
 
@@ -128,7 +127,7 @@ import './styles.css';
 
     // Warm up Tree-sitter WASM core in the background
     TreeSitterHighlighter.init().catch((err) => {
-      console.warn('[CrestEditor] Background Tree-sitter init note:', err);
+      console.warn('[Crest-IDE] Background Tree-sitter init note:', err);
     });
 
     sendEditorReadyOnce();

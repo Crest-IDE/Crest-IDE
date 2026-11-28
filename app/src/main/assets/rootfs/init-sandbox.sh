@@ -14,7 +14,7 @@ mkdir -p "$ROOTFS_DIR/tmp/shm"
 mkdir -p "$PREFIX/public"
 
 # Ensure clean /data/data and /data/user/0 hierarchy exists inside rootfs
-mkdir -p "$ROOTFS_DIR/data/data/com.cresteditor"
+mkdir -p "$ROOTFS_DIR/data/data/com.crestide"
 mkdir -p "$ROOTFS_DIR/data/user"
 if [ ! -e "$ROOTFS_DIR/data/user/0" ]; then
     ln -sf /data/data "$ROOTFS_DIR/data/user/0" 2>/dev/null || true

@@ -34,10 +34,10 @@ async def upload_file(apk_path: str):
 
     # Format caption
     caption = (
-        f"🚀 <b>Crest Editor Build #{escape_html(str(RUN_NUMBER))}</b>\n"
-        f"🌿 <b>Branch:</b> <code>{escape_html(BRANCH)}</code>\n"
-        f"📝 <b>Commit:</b> <code>{escape_html(COMMIT_MSG)}</code>\n\n"
-        f"🔗 <a href='{escape_html(RUN_URL)}'>Workflow Run</a>"
+        f"<b>Crest-IDE Build #{escape_html(str(RUN_NUMBER))}</b>\n"
+        f"<b>Branch:</b> <code>{escape_html(BRANCH)}</code>\n"
+        f"<b>Commit:</b> <code>{escape_html(COMMIT_MSG)}</code>\n\n"
+        f"<a href='{escape_html(RUN_URL)}'>Workflow Run</a>"
     )
 
     max_attempts = 3
